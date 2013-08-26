@@ -3,10 +3,12 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "debug": "node-inspector --web-port=8081 & node --debug-brk app"
   },
   "dependencies": {
     "express": "3.3.5",
-    "ejs": "*"
+    "ejs": "*",
+    "winston": "~0.7.2"
   }
 }
