@@ -1,5 +1,3 @@
-var Server = require("./scripts/server.js");
-
 var config = require("./config/general");
 
 var log = require("winston")
@@ -32,7 +30,7 @@ var Cluster = function(cluster) {
 		} 
 
 		else
-			var server = new Server(cb);
+			var server = require("./scripts/server.js");
 
 	}; exports.start = start;
 
