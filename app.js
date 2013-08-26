@@ -32,7 +32,7 @@ var Cluster = function(cluster) {
 		} 
 
 		else
-			var server = new Server();
+			var server = new Server(cb);
 
 	}; exports.start = start;
 

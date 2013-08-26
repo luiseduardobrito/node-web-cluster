@@ -5,10 +5,9 @@
 
 module.exports = {
 
-	"root": "home",
 	"error": "error",
 
 	"get": {
-		"/": "scrap"
+		"/": "home"
 	}
 };

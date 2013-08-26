@@ -11,7 +11,7 @@ var routes = require('../routes');
 var http = require('http');
 var path = require('path');
 
-module.exports = function(cb) {
+var Server = function(cb) {
 
 	cb = cb || function(){};
 	var app = express();
@@ -45,3 +45,5 @@ module.exports = function(cb) {
 		});
 	});
 }
+
+module.exports = new Server();

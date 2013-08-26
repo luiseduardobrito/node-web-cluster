@@ -19,7 +19,7 @@ var Router = function(api) {
 		if(arr[arr.length - 1] === "")
 			arr.pop();
 
-		var ctrl = require("../api/controllers" + arr.shift());
+		var ctrl = require("../api/controllers/" + arr.shift());
 		var method = ctrl[arr.shift()];
 
 		return method;
@@ -29,8 +29,35 @@ var Router = function(api) {
 
 		cb = cb || function(){};
 
-		for(var k in api.get)
-			app.get(k, method(api[k]));
+		for(var k in (api.get || {})) {
+
+			var uri =  api.get[k];
+
+			if(uri.split('/').length == 1)
+				uri = uri + "/index"
+
+			app.get(k, method(uri));
+		}
+
+		for(var k in (api.post || {})){
+
+			var uri =  api.post[k];
+
+			if(uri.split('/').length == 1)
+				uri = uri + "/index"
+
+			app.post(k, method(uri));
+		}
+
+		for(var k in (api.put || {})) {
+
+			var uri =  api.put[k];
+
+			if(uri.split('/').length == 1)
+				uri = uri + "/index"
+
+			app.put(k, method(uri));
+		}
 
 		cb(app);
 
