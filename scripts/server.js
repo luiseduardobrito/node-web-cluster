@@ -15,7 +15,7 @@ module.exports = function() {
 
 	// all environments
 	app.set('port', process.env.PORT || 3000);
-	app.set('views', __dirname + '/views');
+	app.set('views', path.join(__dirname, '../views'));
 	app.set('view engine', 'ejs');
 	app.use(express.favicon());
 	app.use(express.logger('dev'));
@@ -24,7 +24,7 @@ module.exports = function() {
 	app.use(express.cookieParser('your secret here'));
 	app.use(express.session());
 	app.use(app.router);
-	app.use(express.static(path.join(__dirname, 'public')));
+	app.use(express.static(path.join(__dirname, '../public')));
 
 	// development only
 	if ('development' == app.get('env')) {
