@@ -1,8 +1,7 @@
-var model = require("../../api/adapters/model");
+var model = require("../../api/adapters/model").model;
+var type = require("../../api/adapters/model").type;
 
 exports.test_simpleInteger = function(test) {
-
-	var type = model.type;
 
 	var integer = type.get("integer");
 
@@ -17,8 +16,6 @@ exports.test_simpleInteger = function(test) {
 
 exports.test_simpleString = function(test) {
 
-	var type = model.type;
-
 	var string = type.get("string");
 
 	test.ok(string.check("str"), "Should return true, string is valid.");
@@ -31,8 +28,6 @@ exports.test_simpleString = function(test) {
 }
 
 exports.test_simpleEmail = function(test) {
-
-	var type = model.type;
 
 	var email = type.get("email");
 
@@ -55,7 +50,6 @@ exports.test_simpleEmail = function(test) {
 
 exports.test_simpleObject = function(test) {
 
-	var type = model.type;
 	var obj = {test: "object", recursive: {}};
 
 	var object = type.get("object");
@@ -75,7 +69,6 @@ exports.test_simpleObject = function(test) {
 
 exports.test_simpleArray = function(test) {
 
-	var type = model.type;
 	var arr = ["elem1", "elem2", ["elem3", ["elem4"]]];
 
 	var array = type.get("array");
@@ -93,6 +86,26 @@ exports.test_simpleArray = function(test) {
 	test.done();
 }
 
-exports.testModel = function(test) {
+exports.test_simpleUserModel = function(test) {
+
+	var user = model.create("user", {
+
+		name: "name",
+		email: "email@provider.com",
+		password: "abcd1234",
+		access_token: "01234567890"
+
+	});
+
+	test.expect(6);
+
+	test.ok(user.name == "name", "User name should be valid");
+	test.ok(user.email == "email@provider.com", "User email should be valid");
+	test.ok(user.password == "abcd1234", "User password should be valid");
+	test.ok(user.access_token == "01234567890", "User access_token should be valid");
+
+	test.ok(user._id, "Model _id hash should be valid");
+	test.ok(user.toJSON, "Model 'toJSON' should be valid");
+
 	test.done();
 }

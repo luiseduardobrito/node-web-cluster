@@ -26,7 +26,7 @@ module.exports = {
 		required: true,
 		type: "string"
 
-	}
+	},
 
 	toJSON: function(_this){
 

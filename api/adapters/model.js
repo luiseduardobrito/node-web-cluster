@@ -1,4 +1,5 @@
 var extend = require("extend");
+var crypto = require("crypto");
 
 var Type = function() {
 
@@ -140,7 +141,7 @@ var Type = function() {
 	return init();
 }
 
-var Model = function() {
+var Model = function(type) {
 	
 	var exports = {};
 
@@ -150,53 +151,99 @@ var Model = function() {
 
 		_id: {
 			type: "string",
-			default: "hashkey"
+			default: "hashkey",
+			required: true
 		},
 
-		 _init: function(_this, init){
-		
-			init = init || function(){};
+		toJSON: function() {
+			return JSON.stringify(_this);
+		}
+	};
 
-			for(var k in _this) {
+	function sanitize(model) {
 
-				if(typeof _this[k] === typeof "str") {
-					
-				}
+		for(var k in model) {
+
+			if(toString.call(model[k]) == toString("str")) {
+
+				model[k] = {
+					type: model[k],
+					required: false
+				};
 			}
-
-		 	init();
-			return _this;
 		}
 
+		return model;
+	}
+
+	function generate_default(d) {
+
+		if(d == "hashkey") {
+
+			try {
+
+				var buf = crypto.randomBytes(16);
+				return buf.toString('base64');
+
+			} catch (e) {
+				throw new Error("Problem generating random hash.");
+			}
+		}
+
+		else if(d == "null" || d == null)
+			return null
+
+		else
+			return d;
+	} 
+
+	function initialize(obj, model) {
+
+		model = sanitize(model);
+
+		// validate
+		for(var k in model) {
+
+			if(toString.call(model[k]) == toString.call(function(){})) {
+				obj[k] = model[k]
+			}
+
+			else if(model[k].required) {
+
+				try {
+					type.get(model[k].type).check(obj[k]);
+				}
+				catch(e) {
+
+					if(model[k].default)
+						obj[k] = generate_default(model[k].default)
+					else
+						throw new Error("Error required parsing field '"+k+"': "+e);
+				}
+			}
+			else {
+				try {
+					type.get(model[k].type).check(obj[k]);
+				}
+				catch(e) {
+					obj[k] = null
+				}
+			}
+		}
+
+		return obj;
 	};
 
-	exports.toJSON = function() {
+	function create(name, input) {
 
-		return JSON.stringify(_this);
+		var m = require("../models/" + name + "_model");
 
-	};
-
-	function create(input) {
-
-		var m = _model;
-
-		extend(m, input);
-		exports._init(exports, exports.init || function(){});
+		extend(m, _model);
+		input = initialize(input, m);
 
 		return input;
 
 	}; exports.create = create;
-
-	function hashkey(cb) {
-
-		cb = cb || function(){};
-
-		require('crypto').randomBytes(48, function(ex, buf) {
-  			cb(buf.toString('hex'));
-		});
-
-		return null;
-	}
 
 	function save(obj) {
 		// TODO
@@ -210,4 +257,4 @@ var Model = function() {
 }
 
 exports.type = new Type();
-exports.model = new Model();
+exports.model = new Model(exports.type);
