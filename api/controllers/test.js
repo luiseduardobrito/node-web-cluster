@@ -4,8 +4,6 @@ module.exports = {
 		res.json({
 			test: "ok"
 		})
-
-		ok()
 	},
 
 	get: function(req, res) {

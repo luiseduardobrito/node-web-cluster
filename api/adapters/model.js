@@ -1,19 +1,146 @@
 var extend = require("extend");
-var check = require('validator').check,
-var sanitize = require('validator').sanitize;
 
-//Validate
-check('abc').isInt();                               //Throws 'Invalid integer'
-check('abc', 'Please enter a number').isInt();      //Throws 'Please enter a number'
-check('abcdefghijklmnopzrtsuvqxyz').is(/^[a-z]+$/);
+var Type = function() {
 
-var Model = new function() {
+	var exports = {};
+
+	var handlers = {};
+
+	function int(input) {
+
+		if(input === null) {
+			throw new Error("The input should not be null.");
+		}
+
+		else if(typeof input !== typeof 0) {
+			throw new Error("The input should be a number");
+		}
+
+		else if(input !== parseInt(input)) {
+			throw new Error("The input should be an integer");
+		}
+
+		return true;
+	}; 
+
+	handlers.int = {
+		tags: ["int", "integer"],
+		check: int
+	}
+
+	function string(input) {
+
+		if(input === null) {
+			throw new Error("The input should not be null.");
+		}
+
+		else if(typeof input !== typeof "str") {
+			throw new Error("The input should be a string");
+		}
+
+		return true;
+	}
+
+	handlers.string = {
+		tags: ["str", "string"],
+		check: string
+	}
+
+	function email(input) {
+
+		if(typeof input !== typeof "str") {
+			throw new Error("The input should be a string");
+		}
+
+		else {
+
+			if(input.indexOf('@') == -1 || input.indexOf('.') == -1){
+				throw new Error("The input should be a valid email");
+			}
+
+			try {
+
+				var domain = input.split('@')[1];
+
+				if(domain.length < 3)
+					throw new Error();
+			}
+			catch(e) {
+				throw new Error("The domain should be valid.");
+			}
+		}
+
+		return true;
+	};
+
+	handlers.email = {
+		tags: ["email"],
+		check: email
+	}
+
+	function object(input) {
+
+		if(input === null) {
+			throw new Error("The input should not be null.");
+		}
+
+		if(typeof object !== typeof {}) {
+			throw new Error("The input should be an object.");
+		}
+
+		return true;
+	};
+
+	handlers.object = {
+		tags: ["object", "obj"],
+		check: object
+	}
+
+	function array(input) {
+
+		if(input === null) {
+			throw new Error("The input should not be null.");
+		}
+
+		if(typeof object !== typeof []) {
+			throw new Error("The input should be an array.");
+		}
+
+		return true;
+	};
+
+	handlers.object = {
+		tags: ["object", "obj"],
+		check: object
+	}
+
+	function get(str) {
+		for(var k in handlers)
+			for(var i = 0; i < handlers[k].tags.length; i++)
+				if(handlers[k].tags[i] == str)
+					return handlers[k]
+
+		return false;
+
+	}; exports.get = get;
+
+	function init(){
+		exports.handlers = handlers;
+		return exports;
+	}
+
+	return init();
+}
+
+var Model = function() {
 	
 	var exports = {};
 
+	var type = new Type();
+
 	var _model = {
 
-		_id {
+		_id: {
 			type: "string",
 			default: "hashkey"
 		},
@@ -35,11 +162,11 @@ var Model = new function() {
 
 	};
 
-	exports.toJSON: function() {
+	exports.toJSON = function() {
 
 		return JSON.stringify(_this);
 
-	}; exports.toJSON = toJSON;
+	};
 
 	function create(input) {
 
@@ -54,20 +181,13 @@ var Model = new function() {
 
 	function hashkey(cb) {
 
-		cb = cb || function();
+		cb = cb || function(){};
 
 		require('crypto').randomBytes(48, function(ex, buf) {
   			cb(buf.toString('hex'));
 		});
 
 		return null;
-	}
-
-	function email(cb) {
-		cb = cb || function();
-
-		check('test@email.com').len(6, 64).isEmail();
-		cb(true);
 	}
 
 	function save(obj) {
@@ -80,3 +200,6 @@ var Model = new function() {
 
 	return init();
 }
+
+exports.type = new Type();
+exports.model = new Model();
