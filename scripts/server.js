@@ -21,7 +21,18 @@ var Server = function(cb) {
 	app.set('views', path.join(__dirname, '../views'));
 	app.set('view engine', 'ejs');
 	app.use(express.favicon());
-	app.use(express.logger('dev'));
+	
+	// express own logger
+	// app.use(express.logger('dev'));
+
+	// enable web server logging; pipe those log messages through winston
+	var winstonStream = {
+    	write: function(message, encoding){
+        	winston.info(message);
+    	}
+	};
+	app.use(express.logger({stream:winstonStream}));
+
 	app.use(express.bodyParser());
 	app.use(express.methodOverride());
 	app.use(express.cookieParser('your secret here'));

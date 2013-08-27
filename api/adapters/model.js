@@ -1,6 +1,8 @@
 var extend = require("extend");
 var crypto = require("crypto");
 
+var mongo = require("./mongo");
+
 var Type = function() {
 
 	var exports = {};
@@ -45,6 +47,28 @@ var Type = function() {
 	handlers.string = {
 		tags: ["str", "string"],
 		check: string
+	}
+
+	function password(input) {
+
+		if(input === null) {
+			throw new Error("The input should not be null.");
+		}
+
+		else if(typeof input !== typeof "str") {
+			throw new Error("The input should be a string");
+		}
+
+		else if(!input.length || input.length < 8) {
+			throw new Error("The input password should be at least 8 characters length.");	
+		}
+
+		return true;
+	}
+
+	handlers.password = {
+		tags: ["pass", "password"],
+		check: password
 	}
 
 	function email(input) {
@@ -143,9 +167,7 @@ var Type = function() {
 
 var Model = function(type) {
 	
-	var exports = {};
-
-	var type = new Type();
+	var exports = {type: type};
 
 	var _model = {
 
@@ -211,6 +233,10 @@ var Model = function(type) {
 			else if(model[k].required) {
 
 				try {
+
+					if(!type.get(model[k].type))
+						throw new Error("Specified type is not recognized ("+model[k].type+")")
+
 					type.get(model[k].type).check(obj[k]);
 				}
 				catch(e) {
@@ -218,7 +244,7 @@ var Model = function(type) {
 					if(model[k].default)
 						obj[k] = generate_default(model[k].default)
 					else
-						throw new Error("Error required parsing field '"+k+"': "+e);
+						throw new Error("Error parsing required field '"+k+"'. "+e);
 				}
 			}
 			else {
@@ -241,13 +267,36 @@ var Model = function(type) {
 		extend(m, _model);
 		input = initialize(input, m);
 
+		extend(input, {_model: name});
+
 		return input;
 
 	}; exports.create = create;
 
-	function save(obj) {
-		// TODO
-	}
+	function save(obj, cb) {
+
+		cb = cb || function(){};
+		
+		if(!obj._model) {
+			throw new Error("Object provided is not from any framework model");
+		}
+
+		var db = mongo.connect(obj._model);
+
+		// place timestamp by default
+		obj.timestamp = obj.timestamp || (new Date()).toISOString();
+
+		db.save(obj, function(err, obj){
+
+			if(err)
+				throw new Error("Problem querying database: " + err);
+
+			cb(obj || true);
+		});
+
+		return true;
+
+	}; exports.save = save;
 
 	function init() {
 		return exports;
@@ -256,5 +305,4 @@ var Model = function(type) {
 	return init();
 }
 
-exports.type = new Type();
-exports.model = new Model(exports.type);
+module.exports = new Model(new Type());

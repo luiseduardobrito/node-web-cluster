@@ -1,4 +1,4 @@
-var model = require("../../api/adapters/model").model;
+var model = require("../../api/adapters/model");
 var type = require("../../api/adapters/model").type;
 
 exports.test_simpleInteger = function(test) {
