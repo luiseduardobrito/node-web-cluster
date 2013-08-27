@@ -84,7 +84,11 @@ var Type = function() {
 			throw new Error("The input should not be null.");
 		}
 
-		if(typeof object !== typeof {}) {
+		if(typeof input !== typeof {}) {
+			throw new Error("The input should be an object.");
+		}
+
+		if(toString.call(input) != toString.call({})) {
 			throw new Error("The input should be an object.");
 		}
 
@@ -102,16 +106,20 @@ var Type = function() {
 			throw new Error("The input should not be null.");
 		}
 
-		if(typeof object !== typeof []) {
+		if(typeof input !== typeof []) {
+			throw new Error("The input should be an array.");
+		}
+
+		if(toString.call(input) != toString.call([])){
 			throw new Error("The input should be an array.");
 		}
 
 		return true;
 	};
 
-	handlers.object = {
-		tags: ["object", "obj"],
-		check: object
+	handlers.array = {
+		tags: ["array", "arr"],
+		check: array
 	}
 
 	function get(str) {
