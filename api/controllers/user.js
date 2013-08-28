@@ -4,9 +4,9 @@ module.exports = {
 
 	index: function(req, res) {
 
-		if(req.authenticated) {
+		if(req.cookies.authenticated) {
 
-			var _user = req.user;
+			var _user = req.cookies.user;
 
 			if(_user.password)
 				delete _user.password;
@@ -53,6 +53,9 @@ module.exports = {
 				else {
 					model.save(user, function(r){
 
+						res.cookie("authenticated", true);
+						res.cookie("user", user);
+
 						res.json({
 							result: "success",
 							db: r
@@ -69,11 +72,50 @@ module.exports = {
 
 	login: function(req, res) {
 
-		res.send("login")
+		try {
 
+			model.find("user", {
+
+				email: req.param("email"),
+
+			}, function(result) {
+
+				console.log(result)
+
+				if(!result[0] || result.length < 1) {
+
+					res.json({
+						result: "error",
+						description: "invalid credentials"
+					});
+
+				}
+
+				res.cookie("authenticated", true);
+				res.cookie("user", result[0]);
+
+				res.json({
+					result: "success",
+					user: result[0]
+				})
+			});
+		}
+		catch(err) {
+
+			res.json({
+				result: "error",
+				description: err
+			});
+		}
 	},
 
 	logout: function(req, res) {
-		res.send("login")	
+		
+		res.clearCookie("authenticated");
+		res.clearCookie("user");
+
+		res.json({
+			result: "success"
+		})
 	}
 }
