@@ -26,18 +26,15 @@ exports.test_simpleCollection = function(test){
 
 exports.test_saveModel = function(test) {
 
-	var user = model.create("user", {
+	var t = model.create("test", {
 
-		name: "name",
-		email: "email@provider.com",
-		password: "abcd1234",
-		access_token: "01234567890"
+		test: "ok"
 
 	});
 
 	test.expect(1);
 
-	model.save(user, function(res){
+	model.save(t, function(res){
 
 		test.ok(res, "Saved model result should be valid");
 		test.done();

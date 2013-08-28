@@ -7,6 +7,12 @@ module.exports = {
 	 */
 	"get": {
 		"/": "home",
+
+		"/user": "user",
+		"/user/signin": "user/signin",
+		"/user/login": "user/login",
+		"/user/logout": "user/logout",
+
 		"/test/get": "test/get"
 	},
 

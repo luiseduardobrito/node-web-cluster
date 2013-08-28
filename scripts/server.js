@@ -28,7 +28,7 @@ var Server = function(cb) {
 	// enable web server logging; pipe those log messages through winston
 	var winstonStream = {
     	write: function(message, encoding){
-        	winston.info(message);
+        	log.info(message);
     	}
 	};
 	app.use(express.logger({stream:winstonStream}));
