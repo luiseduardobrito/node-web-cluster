@@ -5,12 +5,9 @@ module.exports = {
 
 	index: function(req, res) {
 
-		policy(req, res).check("authenticated", function() {
+		policy(req, res).check(["authenticated", "root"], function() {
 
 			var _user = req.cookies.user;
-
-			if(_user.password)
-				delete _user.password;
 
 			res.json({
 
@@ -33,8 +30,9 @@ module.exports = {
 			});
 
 			var _res = res;
+			var _user = user;
 
-			model.find("user", {email: user.email}, function(r) {
+			model.find("user", {email: _user.email}, function(r) {
 
 				if(r.length != 0) {
 
@@ -47,14 +45,11 @@ module.exports = {
 				}
 
 				else {
-					model.save(user, function(r){
 
-						_res.cookie("authenticated", true);
-						_res.cookie("user", user);
+					model.save(_user, function(r){
 
 						_res.json({
-							result: "success",
-							db: r
+							result: "success"
 						});
 					})
 				}
@@ -65,7 +60,7 @@ module.exports = {
 
 			res.json({
 				result: "error",
-				description: e
+				description: e.toString()
 			})
 
 			return;

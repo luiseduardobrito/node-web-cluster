@@ -177,7 +177,7 @@ var Model = function(type) {
 			required: true
 		},
 
-		toJSON: function() {
+		toJSON: function(_this) {
 			return JSON.stringify(_this);
 		}
 	};
