@@ -43,3 +43,78 @@ exports.test_saveModel = function(test) {
 		test.done();
 	})
 }
+
+exports.test_findModel = function(test) {
+
+	test.expect(2);
+
+	model.find("test", {}, function(res){
+
+		test.ok(res, "Queried model result should be valid");
+		test.ok(res.length, "Queried model result should be a non-empty array");
+		test.done();
+	})
+}
+
+exports.test_removeModel = function(test) {
+
+	test.expect(1);
+
+	var t = model.create("test", {
+
+		test: "ok"
+
+	});
+
+	test.expect(2);
+
+	model.save(t, function(res){
+
+		model.remove("test", {}, function(res){
+
+			model.find("test", {}, function(res){
+
+				test.ok(res, "Queried model result should be valid");
+				test.ok(res.length == 0, "Queried model result should be an empty array");
+				test.done();
+			})
+		})
+	})
+}
+
+exports.test_clearModel = function(test) {
+
+	test.expect(1);
+
+	model.clear("test", function(res){
+
+		test.ok(res, "Queried model result should be valid");
+		test.done();
+	})
+}
+
+exports.test_clearModel = function(test) {
+
+	test.expect(1);
+
+	var t = model.create("test", {
+
+		test: "ok"
+
+	});
+
+	test.expect(2);
+
+	model.save(t, function(res){
+
+		model.clear("test", function(res){
+
+			model.find("test", {}, function(res){
+
+				test.ok(res, "Queried model result should be valid");
+				test.ok(res.length == 0, "Queried model result should be an empty array");
+				test.done();
+			})
+		})
+	})
+}

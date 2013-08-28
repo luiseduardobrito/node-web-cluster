@@ -298,6 +298,51 @@ var Model = function(type) {
 
 	}; exports.save = save;
 
+	function find(name, rest, cb) {
+
+		name = name;
+		cb = cb || function(){};
+		rest = rest || {};
+
+		var db = mongo.connect(name);
+
+		db.find(rest, function(err, docs) {
+
+			if(err) {
+				throw new Error("Problem querying database: "+err)
+			}
+
+			cb(docs || []);
+
+		});
+
+	}; exports.find = find;
+
+	function remove(name, rest, cb) {
+
+		name = name;
+		cb = cb || function(){};
+		rest = rest || {};
+
+		var db = mongo.connect(name);
+
+		db.remove(rest);
+		cb(true);
+
+	}; exports.remove = remove;
+
+	function clear(name, cb) {
+
+		name = name;
+		cb = cb || function(){};
+
+		var db = mongo.connect(name);
+
+		db.remove();
+		cb(true);
+
+	}; exports.clear = clear;
+
 	function init() {
 		return exports;
 	};
