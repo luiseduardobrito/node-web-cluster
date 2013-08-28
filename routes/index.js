@@ -61,6 +61,10 @@ var Router = function(api) {
 			app.put(k, method(uri));
 		}
 
+		if(toString.call(api.error) === toString.call("")) {
+			app.get("*", method(api.error))
+		}
+
 		cb(app);
 
 	}; exports.bind = bind;

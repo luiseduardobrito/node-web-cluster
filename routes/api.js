@@ -1,6 +1,6 @@
 module.exports = {
 
-	"error": "error",
+	"error": "error/not_found",
 
 	/*
 	 * GET methods
