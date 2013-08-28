@@ -1,10 +1,11 @@
 var model = require("../adapters/model");
+var policy = require("../policies/");
 
 module.exports = {
 
 	index: function(req, res) {
 
-		if(req.cookies.authenticated) {
+		policy(req, res).check("authenticated", function() {
 
 			var _user = req.cookies.user;
 
@@ -16,15 +17,8 @@ module.exports = {
 				result: "success",
 				user: _user
 			});
-		}
 
-		else {
-			res.json({
-
-				result: "error",
-				description: "you're not logged in"
-			});
-		}
+		})
 	},
 
 	signin: function(req, res) {
@@ -38,11 +32,13 @@ module.exports = {
 				access_token: req.param("access_token") || ""
 			});
 
+			var _res = res;
+
 			model.find("user", {email: user.email}, function(r) {
 
 				if(r.length != 0) {
 
-					res.json({
+					_res.json({
 						result: "error",
 						description: "email already in database"
 					})
@@ -53,10 +49,10 @@ module.exports = {
 				else {
 					model.save(user, function(r){
 
-						res.cookie("authenticated", true);
-						res.cookie("user", user);
+						_res.cookie("authenticated", true);
+						_res.cookie("user", user);
 
-						res.json({
+						_res.json({
 							result: "success",
 							db: r
 						});
@@ -67,6 +63,12 @@ module.exports = {
 
 		catch(e) {
 
+			res.json({
+				result: "error",
+				description: e
+			})
+
+			return;
 		}
 	},
 
@@ -89,6 +91,7 @@ module.exports = {
 						description: "invalid credentials"
 					});
 
+					return;
 				}
 
 				res.cookie("authenticated", true);
@@ -98,6 +101,8 @@ module.exports = {
 					result: "success",
 					user: result[0]
 				})
+
+				return;
 			});
 		}
 		catch(err) {
@@ -111,11 +116,14 @@ module.exports = {
 
 	logout: function(req, res) {
 		
-		res.clearCookie("authenticated");
-		res.clearCookie("user");
+		policy(req, res).check("authenticated", function() {
 
-		res.json({
-			result: "success"
-		})
+			res.clearCookie("authenticated");
+			res.clearCookie("user");
+
+			res.json({
+				result: "success"
+			})
+		});
 	}
 }
