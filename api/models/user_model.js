@@ -28,6 +28,13 @@ module.exports = {
 
 	},
 
+	role: {
+
+		required: true,
+		type: "string",
+		default: "user"
+	},
+
 	toJSON: function(_this){
 
 		delete _this.password;
