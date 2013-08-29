@@ -11,8 +11,6 @@ var Router = function(api) {
 
 	function method(path) {
 
-		console.log("path: "+ path)
-
 		var arr = path.split("/");
 
 		if(arr[0] === "")
