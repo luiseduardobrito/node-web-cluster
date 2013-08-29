@@ -35,6 +35,22 @@ module.exports = {
 		default: "user"
 	},
 
+	_sanitize: function(_this) {
+
+		if(_this.password)
+			delete _this.password;
+
+		if(_this._timestamp) {
+			_this.created = _this._timestamp;
+			delete _this._timestamp
+		}
+
+		if(_this.timestamp) {
+			_this.created = _this.timestamp;
+			delete _this.timestamp
+		}
+	},
+
 	toJSON: function(_this){
 
 		delete _this.password;

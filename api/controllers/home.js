@@ -1,8 +1,10 @@
+var response = require("../adapters/response");
+
 module.exports = {
 
 	index: function(req, res) {
 	
-		res.json({
+		response(res).json({
 			result: "success"
 		});
 	}
