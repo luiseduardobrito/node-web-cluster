@@ -1,21 +1,44 @@
 var model = require("../adapters/model");
 var policy = require("../policies/");
+var response = require("../adapters/response");
 
 module.exports = {
 
 	index: function(req, res) {
 
-		policy(req, res).check(["authenticated", "root"], function() {
+		try {
+			policy(req, res).check(["authenticated"], function() { 
 
-			var _user = req.cookies.user;
+				var _user = model.find("user",  {
 
-			res.json({
+					_id: req.cookies.user_id
 
-				result: "success",
-				user: _user
-			});
+				}, function(r) {
 
-		})
+					if(!r[0])
+						throw new Error("Error selecting user")
+
+					response(res).json({
+
+						result: "success",
+						data: {
+							user: r[0]._sanitize(r[0])
+						}
+					});
+
+				});
+			})
+		}
+
+		catch(e) {
+
+			response(res).json({
+				result: "error",
+				message: e.toString()
+			})
+
+			return;
+		}
 	},
 
 	signin: function(req, res) {
@@ -38,7 +61,7 @@ module.exports = {
 
 					_res.json({
 						result: "error",
-						description: "email already in database"
+						message: "email already in database"
 					})
 
 					return;
@@ -49,7 +72,8 @@ module.exports = {
 					model.save(_user, function(r){
 
 						_res.json({
-							result: "success"
+							result: "success",
+							message: "user created successfully"
 						});
 					})
 				}
@@ -58,9 +82,9 @@ module.exports = {
 
 		catch(e) {
 
-			res.json({
+			response(res).json({
 				result: "error",
-				description: e.toString()
+				message: e.toString()
 			})
 
 			return;
@@ -77,24 +101,27 @@ module.exports = {
 
 			}, function(result) {
 
-				console.log(result)
-
 				if(!result[0] || result.length < 1) {
 
-					res.json({
+					response(res).json({
 						result: "error",
-						description: "invalid credentials"
+						message: "invalid credentials"
 					});
 
 					return;
 				}
 
 				res.cookie("authenticated", true);
+				res.cookie("user_id", result[0]._id);
 				res.cookie("user", result[0]);
 
-				res.json({
+				response(res).json({
+
 					result: "success",
-					user: result[0]
+					message: "user logged in successfully",
+					data: {
+						user: result[0]._sanitize(result[0])
+					}
 				})
 
 				return;
@@ -102,9 +129,9 @@ module.exports = {
 		}
 		catch(err) {
 
-			res.json({
+			response(res).json({
 				result: "error",
-				description: err
+				message: err.toString()
 			});
 		}
 	},
@@ -114,10 +141,12 @@ module.exports = {
 		policy(req, res).check("authenticated", function() {
 
 			res.clearCookie("authenticated");
+			res.clearCookie("user_id");
 			res.clearCookie("user");
 
-			res.json({
-				result: "success"
+			response(res).json({
+				result: "success",
+				message: "user successfully logged out"
 			})
 		});
 	}

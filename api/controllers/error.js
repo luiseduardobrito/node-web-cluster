@@ -1,22 +1,25 @@
+var response = require("../adapters/response");
+
 module.exports = {
 	
 	index: function(req, res) {
 
-		res.json({
+		response(res).json({
 
 			result: "error",
-			description: "unknown"
+			code: 500,
+			message: "unknown"
 
 		});
 	},
 
 	not_found: function(req, res) {
 
-		res.json({
+		response(res).json({
 
 			result: "error",
 			code: 404,
-			description: "not found"
+			message: "not found"
 
 		});
 	}

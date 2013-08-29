@@ -177,25 +177,37 @@ var Model = function(type) {
 			required: true
 		},
 
+		_timestamp: {
+			type: "string",
+			default: "timestamp",
+			required: true
+		},
+
+		_toJSON: function(_this) {
+
+			return JSON.stringify(_this._sanitize(_this) || _this);
+		},
+
 		toJSON: function(_this) {
-			return JSON.stringify(_this);
+
+			return (_this._toJSON ? _this._toJSON(_this) : JSON.stringify(_this._sanitize ? _this._sanitize(_this) : _this));
 		}
 	};
 
-	function sanitize(model) {
+	function sanitize(_this) {
 
-		for(var k in model) {
-
-			if(toString.call(model[k]) == toString("str")) {
-
-				model[k] = {
-					type: model[k],
-					required: false
-				};
-			}
+		for(var k in _this) {
+			if(toString.call(_this[k]) == toString.call(function(){}))
+				delete _this[k];
 		}
 
-		return model;
+		if(_this && _this._timestamp)
+			delete _this.timestamp
+
+		if(_this && _this._model)
+			delete _this._model
+
+		return _this;
 	}
 
 	function generate_default(d) {
@@ -212,6 +224,9 @@ var Model = function(type) {
 			}
 		}
 
+		else if(d == "timestamp")
+			return (new Date()).toISOString()
+
 		else if(d == "null" || d == null)
 			return null
 
@@ -220,8 +235,6 @@ var Model = function(type) {
 	} 
 
 	function initialize(obj, model) {
-
-		model = sanitize(model);
 
 		// validate
 		for(var k in model) {
@@ -264,12 +277,33 @@ var Model = function(type) {
 
 		var m = require("../models/" + name + "_model");
 
-		extend(m, _model);
-		input = initialize(input, m);
+		// check sanitizer
+		if(m._sanitize) {
 
-		extend(input, {_model: name});
+			var custom_stz = m._sanitize;
+			var default_stz = sanitize;
 
-		return input;
+			m._sanitize = function(_this) {
+				var result = custom_stz(_this);
+				result = default_stz(_this);
+				return result;
+			}
+		}
+		else
+			m._sanitize = sanitize;
+
+		m.sanitize = m._sanitize;
+
+		var created = {}
+
+		extend(created, _model);
+		extend(created, m);
+
+		created = initialize(input, created);
+
+		extend(created, {_model: name});
+
+		return created;
 
 	}; exports.create = create;
 
@@ -310,6 +344,11 @@ var Model = function(type) {
 
 			if(err) {
 				throw new Error("Problem querying database: "+err)
+			}
+
+			for(var i = 0; i < docs.length; i++) {
+
+				docs[i] = create(name, docs[i]);
 			}
 
 			cb(docs || []);
