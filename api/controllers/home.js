@@ -11,9 +11,8 @@ module.exports = {
 
 	view: function(req, res) {
 	
-		res.render("home/view", {title: "view", layout: "layout.ejs"}, 
-			function(err, html) {
-				res.send(html);
-		})
+		response(res).view("home/view", {
+			title: "node-web-cluster"
+		});
 	},
 }

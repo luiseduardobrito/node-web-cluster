@@ -49,6 +49,15 @@ var Response = function(res) {
 
 	}; exports.json = json;
 
+	function view(name, data) {
+
+		_res.render(name, data, 
+			function(err, html) {
+				res.send(html);
+		});
+		
+	}; exports.view = view;
+
 	function init() {
 		return exports;
 	}
