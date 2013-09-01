@@ -9,6 +9,17 @@ module.exports = {
 		cluster: {
 
 			max: 1
+		},
+
+		db: {
+	
+			protocol: "mongodb://",
+
+			user: "root",
+			password: "",
+
+			db: "main",
+			host: "localhost"
 		}
 	},
 
@@ -19,11 +30,33 @@ module.exports = {
 		cluster: {
 		
 			max: 3
+		},
+
+		db: {
+	
+			protocol: "mongodb://",
+
+			user: "root",
+			password: "",
+
+			db: "main",
+			host: "localhost"
 		}
 	},
 
 	production: {
 
-		port: 3000
-	},
+		port: 3000,
+
+		db: {
+		
+			protocol: "mongodb://",
+
+			user: "root",
+			password: "",
+
+			db: "main",
+			host: "localhost"
+		}
+	}
 }
