@@ -233,7 +233,6 @@ var Model = function(type) {
 		else
 			return d;
 	} 
-
 	function initialize(obj, model) {
 
 		// validate

@@ -8,6 +8,8 @@ module.exports = {
 	"get": {
 		"/": "home",
 
+		"/view": "home/view",
+
 		"/user": "user",
 		"/user/signin": "user/signin",
 		"/user/login": "user/login",
