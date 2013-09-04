@@ -78,7 +78,7 @@
 					broadcast.subscribe(k, events[k]);	
 
 			return exports;
-			
+			f
 		}; exports.init = init;
 
 		function destroy() {
@@ -106,16 +106,16 @@
 		events["app/ready"] = function(data) {
 
 			window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
-				core.log.error("Unhandled error catch by error module.");
-				core.log.error(errorMsg ? errorMsg + " (:" + lineNumber  + ")" : {description: "unknown"});
-
-				alert("Oops, The app has crashed!");
-				return false;
+				sandbox.broadcast.publish("error", {
+					description: errorMsg || "unknown",
+					url: url || "unknown",
+					line: lineNumber || "unknown"
+				})
 			}
 		};
 
 		events["error"] = function(data) {
-			core.log.error("Unhandled error catch by error module.");
+			core.log.error("Error Module: Unhandled error thrown by application.");
 			core.log.error(data || {description: "unknown"});
 
 			alert("Oops, The app has crashed!");

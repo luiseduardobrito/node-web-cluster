@@ -20,7 +20,7 @@ var Server = function(cb) {
 	// all environments
 	app.set('port', process.env.PORT || 3000);
 
-	app.use("/js", express.static(path.resolve(__dirname, "../front")));
+	app.use("/js", express.static(path.resolve(__dirname, "../client")));
 	app.set('view engine', 'ejs');
 	app.use(expressLayouts)
 
@@ -42,7 +42,7 @@ var Server = function(cb) {
 	app.use(express.cookieParser('your secret here'));
 	app.use(express.session());
 	app.use(app.router);
-	app.use(express.static(path.join(__dirname, '../public')));
+	app.use("/public", express.static(path.join(__dirname, '../public')));
 
 	// development only
 	if ('development' == app.get('env')) {
