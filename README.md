@@ -12,22 +12,11 @@ The project can be fully comtrolled using the NPM scripts defined in package.jso
 npm start
 ```
 
-* Debug cluster
-```sh
-npm run-script debug
-```
-
 * Start single server
 ```sh
 npm run-script start-server
-```
 
-* Debug single server
-```sh
-npm run-script debug-server
-```
+### Guides and Documentation
 
-### Help and Documentation
-
-* [Wiki](https://github.com/luiseduardobrito/node-web-cluster/wiki)
-* [Issues](https://github.com/luiseduardobrito/node-web-cluster/issues)
+* Visit our [wiki](https://github.com/luiseduardobrito/node-web-cluster/wiki) to get started!
+* Found some problem? Report it in the [issues](https://github.com/luiseduardobrito/node-web-cluster/issues) page!
