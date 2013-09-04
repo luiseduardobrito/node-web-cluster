@@ -20,6 +20,7 @@ var Server = function(cb) {
 	// all environments
 	app.set('port', process.env.PORT || 3000);
 
+	app.use("/js", express.static(path.resolve(__dirname, "../front")));
 	app.set('view engine', 'ejs');
 	app.use(expressLayouts)
 
@@ -50,14 +51,8 @@ var Server = function(cb) {
 
 	// prepare routes
 	routes.bind(app, function(app) {
-
-		http.createServer(app).listen(app.get('port'), function(){
-
-			console.log('Worker listening on port ' + app.get('port'));
-			cb(app);
-
-		});
+		cb(http.createServer(app), app);
 	});
 }
 
-module.exports = new Server();
+module.exports = Server;

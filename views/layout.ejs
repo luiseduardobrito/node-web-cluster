@@ -13,9 +13,23 @@
 
 		<!-- styles -->
 		<link href="stylesheets/style.css" rel="stylesheet">
-
 	</head>
 	<body>
 		<%- body %>
+
+		<!-- system deps -->
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+
+		<!-- js -->
+		<script src="/js/app.js"></script>
+		<script src="/js/modules.js"></script>
+
+		<script type="text/javascript">
+			var app = new Application(sandbox);
+			$(document).ready(function(){
+				app.startAll();
+			})
+		</script>
 	</body>
 </html>

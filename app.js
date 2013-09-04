@@ -1,9 +1,14 @@
 var config = require("./config/general");
+var socket_config = require("./config/general");
 
 var log = require("winston")
 var cluster = require('cluster');
 var http = require('http');
+
 var numCPUs = require('os').cpus().length;
+
+var Server = require("./scripts/server");
+var Socket = require("./scripts/socket");
 
 var Cluster = function(cluster) {
 
@@ -17,8 +22,8 @@ var Cluster = function(cluster) {
 
 		if (cluster.isMaster) {
 
-			for (var i = 0; i < numCPUs; i++) 
-				cluster.fork();
+			for (var i = 0; i < numCPUs; i++)
+				cluster.fork()
 
 			exports.cpus = numCPUs;
 
@@ -29,8 +34,18 @@ var Cluster = function(cluster) {
 			cb();
 		} 
 
-		else
-			var server = require("./scripts/server.js");
+		else if (cluster.isWorker) {
+
+			var socket = null;
+
+			var server = new Server(function(server, app){
+				server.listen(app.get('port'), function(){
+					socket = new Socket(server);
+					log.info('Worker listening on port ' + app.get('port'));
+				});
+			});
+		}
+			
 
 	}; exports.start = start;
 
