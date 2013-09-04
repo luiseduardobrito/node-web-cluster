@@ -1,11 +1,11 @@
 node-web-cluster
 ================
 
-Node web cluster boilerplate.
+Node web cluster boilerplate, used to create scalable web apps, with improved uptime. 
 
 ### Getting Started
 
-The project can be fully comtrolled using the NPM scripts defined in package.json.
+The project can be fully controlled using the NPM scripts defined in package.json.
 
 * Start cluster
 ```sh
