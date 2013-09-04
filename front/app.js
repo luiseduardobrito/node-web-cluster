@@ -10,7 +10,7 @@ var appConfig = {
 			port: 3000
 		},
 
-		modules: ["user"]
+		modules: ["user", "error"]
 	},
 
 	testing: {
@@ -21,7 +21,7 @@ var appConfig = {
 			port: 3000
 		},
 
-		modules: ["user", "tracking"]
+		modules: ["user", "tracking", "error"]
 	},
 
 	production: {
@@ -32,7 +32,7 @@ var appConfig = {
 			port: 3000
 		},
 
-		modules: ["user", "tracking"]
+		modules: ["user", "tracking", "error"]
 	}
 }
 
@@ -196,7 +196,7 @@ var Application = function(sandbox) {
 		if(window[name + "_module"]) {
 
 			var m = window[name + "_module"];
-			modules[name] = m(sandbox);
+			modules[name] = new m(sandbox);
 			return true;
 		}
 
@@ -210,8 +210,8 @@ var Application = function(sandbox) {
 			if(!register(sandbox.modules[i]))
 				core.log.error("Module not found: " + sandbox.modules[i])
 
-
 		core.log.info("app initializing...")
+		sandbox.broadcast.publish("app/ready", {});
 		return exports;
 	}	
 

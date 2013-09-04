@@ -4,105 +4,144 @@
 //														//
 //////////////////////////////////////////////////////////
 
-window.user_module = function(sandbox) {
+(function(window) {
 
-	var exports = {};
-	var events = {};
+	window.user_module = function(sandbox) {
 
-	//////////////////////////////
-	// 		user actions		//
-	//////////////////////////////
-	events["user"] = function(data) {
+		var exports = {};
+		var events = {};
 
-		core.log.info("user/");
+		//////////////////////////////
+		// 		user actions		//
+		//////////////////////////////
+		events["user"] = function(data) {
 
-		sandbox.api("user", {}, function(response) {
-			sandbox.broadcast.publish("user/" + response.result, 
-				response.data.user || {});
-		});
-	};
+			core.log.info("user/");
 
-	events["user/login"] = function(data) {
-		sandbox.api("user/login", {
+			sandbox.api("user", {}, function(response) {
+				sandbox.broadcast.publish("user/" + response.result, 
+					response.data.user || {});
+			});
+		};
 
-			email: data.email,
-			password: data.password
+		events["user/login"] = function(data) {
+			sandbox.api("user/login", {
 
-		}, function(response) {
-			sandbox.broadcast.publish("user/login/" + response.result, 
-				response.data.user || {});
-		});
-	};
+				email: data.email,
+				password: data.password
 
-	events["user/signup"] = function(data) {
-		sandbox.api("user/signin", {
+			}, function(response) {
+				sandbox.broadcast.publish("user/login/" + response.result, 
+					response.data.user || {});
+			});
+		};
 
-			name: data.name,
-			email: data.email,
-			password: data.password
+		events["user/signup"] = function(data) {
+			sandbox.api("user/signin", {
 
-		}, function(response) {
-			sandbox.broadcast.publish("user/signin/" + response.result, 
-				response.data.user || {});
-		});
-	};
+				name: data.name,
+				email: data.email,
+				password: data.password
+
+			}, function(response) {
+				sandbox.broadcast.publish("user/signin/" + response.result, 
+					response.data.user || {});
+			});
+		};
 
 
-	//////////////////////////////
-	// 		action responses	//
-	//////////////////////////////
-	events["user/login/success"] = function(data) {
-		
-		var user_info = sandbox.selector("#user-info");
-		user_info.show();
+		//////////////////////////////
+		// 		action responses	//
+		//////////////////////////////
+		events["user/login/success"] = function(data) {
+			
+			var user_info = sandbox.selector("#user-info");
+			user_info.show();
 
-		var user = sandbox.selector("#user");
-		user.html(data.name);
-	};
+			var user = sandbox.selector("#user");
+			user.html(data.name);
+		};
 
-	events["user/login/error"] = function(data) {
-		
-		alert("error");
-	};
+		events["user/login/error"] = function(data) {
+			
+			alert("error");
+		};
 
-	function init() {
+		function init() {
 
-		core.log.info("starting user module...")
+			core.log.info("starting user module...")
+
+			var broadcast = sandbox.broadcast;
+
+			for(var k in events)
+				if(typeof events[k] == typeof function(){})
+					broadcast.subscribe(k, events[k]);	
+
+			return exports;
+			
+		}; exports.init = init;
+
+		function destroy() {
+
+			core.log.info("destroying user module...")
+			
+		}; exports.destroy = destroy;
+
 		return exports;
+	}
 
-	}; exports.init = init;
+	//////////////////////////////////////////////////////////
+	//														//
+	//	Standard Modules - Framework default (don't edit!)	//
+	//														//
+	//////////////////////////////////////////////////////////
+	window.error_module = function(sandbox) {
 
-	function destroy() {
-
-		core.log.info("destroying user module...")
+		var exports = {};
+		var events = {};
 		
-	}; exports.destroy = destroy;
+		//////////////////////////////
+		// 		error actions		//
+		//////////////////////////////
+		events["app/ready"] = function(data) {
 
-	function start() {
+			window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
+				core.log.error("Unhandled error catch by error module.");
+				core.log.error(errorMsg ? errorMsg + " (:" + lineNumber  + ")" : {description: "unknown"});
 
-		var broadcast = sandbox.broadcast;
+				alert("Oops, The app has crashed!");
+				return false;
+			}
+		};
 
-		for(var k in events)
-			if(typeof events[k] == typeof function(){})
-				broadcast.subscribe(k, events[k]);	
+		events["error"] = function(data) {
+			core.log.error("Unhandled error catch by error module.");
+			core.log.error(data || {description: "unknown"});
 
-	}; exports.start = start();
+			alert("Oops, The app has crashed!");
+		}
 
-	function stop() {
+		function init() {
 
-		var broadcast = sandbox.broadcast;
+			core.log.info("starting error module...")
 
-		for(var k in events)
-			if(typeof events[k] == typeof function(){})
-				broadcast.unsubscribe(events[k]);	
+			var broadcast = sandbox.broadcast;
 
-	}; exports.start = start();
+			for(var k in events)
+				if(typeof events[k] == typeof function(){})
+					broadcast.subscribe(k, events[k]);	
 
-	return exports;
-}
+			return exports;
 
-//////////////////////////////////////////////////////////
-//														//
-//	Standard Modules - Framework default (don't edit!)	//
-//														//
-//////////////////////////////////////////////////////////
+		}; exports.init = init;
+
+		function destroy() {
+
+			core.log.info("destroying error module...")
+			
+		}; exports.destroy = destroy;
+
+		return exports;		
+	}
+
+})(window)
