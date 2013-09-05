@@ -21,7 +21,7 @@ var Server = function(cb) {
 	app.set('port', process.env.PORT || 3000);
 
 	app.use("/js", express.static(path.resolve(__dirname, "../client")));
-	app.use("/assets", express.static(path.resolve(__dirname, "../public")));
+	app.use("/assets", express.static(path.resolve(__dirname, "../assets")));
 	app.set('view engine', 'ejs');
 	app.use(expressLayouts)
 
