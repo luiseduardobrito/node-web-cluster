@@ -21,6 +21,7 @@ var Server = function(cb) {
 	app.set('port', process.env.PORT || 3000);
 
 	app.use("/js", express.static(path.resolve(__dirname, "../client")));
+	app.use("/assets", express.static(path.resolve(__dirname, "../public")));
 	app.set('view engine', 'ejs');
 	app.use(expressLayouts)
 
@@ -42,7 +43,6 @@ var Server = function(cb) {
 	app.use(express.cookieParser('your secret here'));
 	app.use(express.session());
 	app.use(app.router);
-	app.use("/public", express.static(path.join(__dirname, '../public')));
 
 	// development only
 	if ('development' == app.get('env')) {
