@@ -7,8 +7,8 @@
     "debug": "node-inspector --web-port=3333 & node --debug-brk app",
     "test": "nodeunit tests/*",
     "debug-test": "node-inspector --web-port=3333 & node --debug-brk `which nodeunit` tests/*",
-    "start-server": "node scripts/server.js",
-    "debug-server": "node-inspector --web-port=3333 & node --debug-brk scripts/server.js"
+    "start-server": "node scripts/single-server.js",
+    "debug-server": "node-inspector --web-port=3333 & node --debug-brk scripts/single-server.js"
   },
   "dependencies": {
     "express": "3.3.5",

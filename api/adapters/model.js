@@ -31,28 +31,6 @@ var Type = function() {
 		check: int
 	}
 
-	function float(input) {
-
-		if(input === null) {
-			throw new Error("The input should not be null.");
-		}
-
-		else if(typeof input !== typeof 0) {
-			throw new Error("The input should be a number");
-		}
-
-		else if(input !== parseFloat(input)) {
-			throw new Error("The input should be an integer");
-		}
-
-		return true;
-	}; 
-
-	handlers.float = {
-		tags: ["double", "float", "number", "numeric", "num"],
-		check: float
-	}
-
 	function string(input) {
 
 		if(input === null) {
@@ -255,6 +233,7 @@ var Model = function(type) {
 		else
 			return d;
 	} 
+
 	function initialize(obj, model) {
 
 		// validate
@@ -408,7 +387,6 @@ var Model = function(type) {
 		});
 
 	}; exports.find = find;
-
 
 	function remove(name, rest, cb) {
 
