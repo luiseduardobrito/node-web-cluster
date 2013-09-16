@@ -6,14 +6,17 @@ module.exports = {
 	 * GET methods
 	 */
 	"get": {
+
+		// views
 		"/": "home",
+		"/login": "home/login",
+		"/dashboard": "home/dashboard",
 
-		"/view": "home/view",
-
-		"/user": "user",
-		"/user/signin": "user/signin",
-		"/user/login": "user/login",
-		"/user/logout": "user/logout",
+		// api
+		"/api/user": "user",
+		"/api/user/signin": "user/signin",
+		"/api/user/login": "user/login",
+		"/api/user/logout": "user/logout",
 
 		"/test/get": "test/get"
 	},

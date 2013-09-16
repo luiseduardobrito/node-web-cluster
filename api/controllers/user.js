@@ -1,3 +1,5 @@
+var crypto = require("crypto");
+
 var model = require("../adapters/model");
 var policy = require("../policies/");
 var response = require("../adapters/response");
@@ -45,10 +47,12 @@ module.exports = {
 
 		try {
 
+			var sha256 = crypto.createHash('sha256').update(req.param("password")).digest("hex");
+
 			var user = model.create("user", {
 				name: req.param("name"),
 				email: req.param("email"),
-				password: req.param("password"),
+				password: sha256,
 				access_token: req.param("access_token") || ""
 			});
 
@@ -95,9 +99,12 @@ module.exports = {
 
 		try {
 
+			var sha256 = crypto.createHash('sha256').update(req.param("password")).digest("hex");
+
 			model.find("user", {
 
 				email: req.param("email"),
+				password: sha256,
 
 			}, function(result) {
 

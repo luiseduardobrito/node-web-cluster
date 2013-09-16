@@ -18,7 +18,7 @@
 				port: 3000
 			},
 
-			modules: ["user", "error"],
+			modules: ["user"],
 
 			// show info logs
 			log: true
@@ -32,7 +32,7 @@
 				port: 3000
 			},
 
-			modules: ["user", "error"],
+			modules: ["user"],
 
 			// show info logs
 			log: true
@@ -78,6 +78,12 @@
 			if(!ctrl || !ctrl.length)
 				throw new Error("No controller specified");
 
+			else if(ctrl[0] == "#") {
+
+				location.hash = ctrl
+				return;
+			}
+
 			else if(ctrl == "/" || ctrl[0] == '/')
 				var uri = ctrl;
 			
@@ -90,7 +96,9 @@
 			var tag = "[" + clientConfig.tags.container + "='controllers']";
 			var _ctrl = ctrl;
 
-			$(tag).load(uri +" "+ tag, data, function(data){
+			$(tag).parent().load(uri +" "+ tag, data, function(data){
+
+				bindings(tag);
 				history.pushState('', uri || _ctrl, uri);
 			})
 
@@ -102,16 +110,56 @@
 
 		}; exports.redirect = redirect;
 
+		var bindings = function(tag){
+
+			$(tag + " a[data-module][data-method]").attr("href", "javascript:;");
+
+			$(tag + " form[data-module][data-method]").on("submit", function(e){
+
+				e.preventDefault();
+				sandbox.broadcast.publish("module/call", {
+					module: $(this).attr("data-module"),
+					method: $(this).attr("data-method")
+				});
+			});
+
+			$(tag + " a[data-module][data-method]").on("click", function(e){
+
+				e.preventDefault();
+				sandbox.broadcast.publish("module/call", {
+					module: $(this).attr("data-module"),
+					method: $(this).attr("data-method")
+				});
+			});
+
+			$(tag + "a").on("click", function(e){
+
+				e.preventDefault();
+
+				if($(this).attr("data-module")
+					&& $(this).attr("data-method")) {
+					return false;
+				}
+
+				else
+					core.client.render($(this).attr("href"));
+
+				return false;
+			})
+		}
+
 		var init = function(){
 
 			exports.util = _;
 
-			$("a").on("click", function(e){
+			var tag = "[" + clientConfig.tags.container + "='controllers']";
+			bindings(tag);
 
-				e.preventDefault();
-				core.client.render($(this).attr("href"));
-				return false;
-			})
+			$(window).on("hashchange", function(){
+				sandbox.broadcast.publish("hash/" + location.hash.replace("#", ""), { 
+					hash: location.hash 
+				});
+			});
 
 			exports = $.extend($, exports);
 
@@ -169,8 +217,12 @@
 		};
 
 		var subscribers = {
-				any: [] // event type: subscribers
-			};
+			any: [] // event type: subscribers
+		};
+
+		var once = {
+			any: [] // event type: subscribers
+		};
 
 		var broadcast = {
 
@@ -185,6 +237,17 @@
 				subscribers[type].push(fn);
 			},
 
+			once: function (type, fn) {
+
+				type = type || 'any';
+
+				if (typeof once[type] === "undefined") {
+					once[type] = [];
+				}
+
+				once[type].push(fn);
+			},
+
 			unsubscribe: function (type, fn) {
 				this.visitSubscribers('unsubscribe', fn, type);
 			},
@@ -194,6 +257,7 @@
 			},
 
 			visitSubscribers: function (action, arg, type) {
+
 				var pubtype = type || 'any';
 				s = subscribers[pubtype] || [];
 				max = s.length;
@@ -202,11 +266,27 @@
 
 					if (action === 'publish') {
 						s[i](arg);
+
 					} else {
+
 						if (s[i] === arg) {
 							s.splice(i, 1);
 						}
 					}
+				}
+
+				o = once[pubtype] || [];
+				max = o.length;
+
+				while(o.length) {
+					
+					var cb = o.pop();
+
+					if (action === 'publish') {
+						cb(arg);
+						o.splice(i, 1);
+
+					} 
 				}
 			}
 		}; exports.broadcast = broadcast;
@@ -216,7 +296,7 @@
 			function call(uri, data, fn) {
 
 				var connection_url = "http://" + config.api.host;
-				connection_url += ":" + config.api.port + "/";
+				connection_url += ":" + config.api.port + "/api/";
 
 				fn = fn || function(){};
 				data = data || {};
@@ -236,6 +316,11 @@
 		}; exports.api = new Api(core.config);
 
 		function init() {
+
+			if(location.hash) {
+				core.client.render(location.hash);
+			}
+
 			core.log.info("sandbox initialized successfully...")
 			return exports;
 		}	
@@ -304,8 +389,25 @@
 				if(!register(sandbox.modules[i]))
 					core.log.error("Module not found: " + sandbox.modules[i])
 
+			sandbox.broadcast.subscribe("module/call", function(data) {
+
+				if(!modules[data.module])
+					throw new Error("Module not found: " + data.module)
+
+				else if(!modules[data.module][data.method])
+					throw new Error("Method '" + data.method+"' not found in '" + data.module + "' module")
+				
+				else {
+
+					var m = modules[data.module][data.method];
+					m(); 
+				}
+			});
+
 			core.log.info("app initializing...")
 			sandbox.broadcast.publish("app/ready", {});
+
+
 			return exports;
 		}	
 

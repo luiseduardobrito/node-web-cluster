@@ -22,37 +22,61 @@
 					response.data.user || {});
 			});
 
-		};
+		}; exports.me = me;
 
 		var login = function(data) {
 
 			// prepare successful login callback
-			broadcast.subscribe("user/login/success", function(data) {
-			
-				var user_info = sandbox.client("#user-info");
-				user_info.show();
+			broadcast.once("user/login/success", function(data) {
 
-				var user = sandbox.client("#user");
-				user.html(data.name);
+				if($("#destination").val())
+					core.client.render($("#destination").val());
+				else
+					core.client.render("dashboard");
 			});
 	
 			// prepare error login callback
-			broadcast.subscribe("user/login/error", function(data) {	
-				alert("error");
+			broadcast.once("user/login/error", function(data) {	
+				alert("Error: "+ data.message || "unknown error.");
 			});
 
 			// call the api
 			sandbox.api("user/login", {
 
-				email: data.email,
-				password: data.password
+				email: $("#email").val(),
+				password: $("#password").val()
 
 			}, function(response) {
 
 				broadcast.publish("user/login/" + response.result, 
-					response.data.user || {});
+					response.data.user || response || {});
 			});
-		};
+
+		}; exports.login = login;
+
+		var logout = function(data) {
+
+			// prepare successful login callback
+			broadcast.once("user/logout/success", function(data) {
+
+				alert(data.message || "User successfully logged out.");
+				core.client.render("/");
+
+			});
+	
+			// prepare error login callback
+			broadcast.once("user/logout/error", function(data) {	
+				alert("Error: "+ data.message || "unknown error.");
+			});
+
+			// call the api
+			sandbox.api("user/logout", function(response) {
+
+				broadcast.publish("user/logout/" + response.result, response || {});
+
+			});
+
+		}; exports.logout = logout;
 
 		var signup = function(data) {
 
@@ -68,15 +92,15 @@
 	
 			// prepare error login callback
 			broadcast.subscribe("user/signup/error", function(data) {	
-				alert("error");
+				alert("Error: "+ data.message || "unknown error.");
 			});
 
 			// call the api
 			sandbox.api("user/signin", {
 
-				name: data.name,
-				email: data.email,
-				password: data.password
+				name: $("#name").val(),
+				email: $("#email").val(),
+				password: $("#password").val()
 
 			}, function(response) {
 
@@ -84,7 +108,7 @@
 					response.data.user || {});
 			});
 
-		};
+		}; exports.signup = signup;
 
 		function init() {
 
@@ -110,12 +134,12 @@
 	window.error_module = function(sandbox) {
 
 		var exports = {};
-		var events = {};
+		var broadcast = sandbox.broadcast;
 		
 		//////////////////////////////
 		// 		error actions		//
 		//////////////////////////////
-		events["app/ready"] = function(data) {
+		broadcast.subscribe("app/ready", function(data) {
 
 			window.onerror = function myErrorHandler(errorMsg, url, lineNumber) {
 				sandbox.broadcast.publish("error", {
@@ -124,24 +148,20 @@
 					line: lineNumber || "unknown"
 				})
 			}
-		};
+		});
 
-		events["error"] = function(data) {
+		broadcast.subscribe("error", function(data) {
 			core.log.error("Error Module: Unhandled error thrown by application.");
 			core.log.error(data || {description: "unknown"});
 
 			alert("Oops, The app has crashed!");
-		}
+		});
 
 		var init = function() {
 
 			core.log.info("starting error module...")
 
 			var broadcast = sandbox.broadcast;
-
-			for(var k in events)
-				if(typeof events[k] == typeof function(){})
-					broadcast.subscribe(k, events[k]);	
 
 			return exports;
 
