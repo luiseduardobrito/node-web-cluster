@@ -1,224 +1,396 @@
-var appConfig = {
+(function(window){
 
-	state: "development",
+	//////////////////////////////////////////////////////////
+	//														//
+	//				Application Controllers 				//
+	//														//
+	//////////////////////////////////////////////////////////
 
-	development: {
+	var controllers = {
 
-		api: {
+		home: function(client) {
 
-			host: "localhost",
-			port: 3000
+			// define view data
+			var data = {
+
+				title: "note-web-cluster",
+				version: "v0.0.2"
+			};
+
+			// render template for home
+			client.render("home", data);
 		},
 
-		modules: ["user", "error"]
-	},
+		help: function(client) {
 
-	testing: {
+			// define view data
+			var data = {
 
-		api: {
+				title: "help",
+				message: ">> help message here <<"
+			};
 
-			host: "localhost",
-			port: 3000
+			// render template for home
+			client.render("help", data);
 		},
 
-		modules: ["user", "tracking", "error"]
-	},
+		// controller for 404 error
+		_error: function(client) {
 
-	production: {
+			// define view data
+			var data = {
 
-		api: {
+				title: "error",
+				code: "404"
+			};
 
-			host: "localhost",
-			port: 3000
-		},
-
-		modules: ["user", "tracking", "error"]
-	}
-}
-
-var Core = function(config) {
-
-	var exports = {log: {}, config: config};
-
-	// wrap logger
-	function info(msg) {
-
-		if(toString.call(msg) == toString.call("str"))
-			console.log("info: " + msg);
-		else
-			console.log(msg);
-	};
-	exports.log.info = info;
-
-	// wrap logger
-	function error(msg) {
-		console.error(msg);
-	};
-	exports.log.error = error;
-
-	function init() {
-
-		// run unit test
-		info("core initialized successfully...")
-
-		return exports;
-	}	
-
-	return init();
-}
-
-var Sandbox = function(core) {
-
-	var exports = {
-		modules: core.config.modules,
-		selector: $
-	};
-
-	var subscribers = {
-			any: [] // event type: subscribers
-		};
-
-	var broadcast = {
-
-		subscribe: function (type, fn) {
-
-			type = type || 'any';
-
-			if (typeof subscribers[type] === "undefined") {
-				subscribers[type] = [];
-			}
-
-			subscribers[type].push(fn);
-		},
-
-		unsubscribe: function (fn, type) {
-			this.visitSubscribers('unsubscribe', fn, type);
-		},
-
-		publish: function (type, publication) {
-			this.visitSubscribers('publish', publication, type);
-		},
-
-		visitSubscribers: function (action, arg, type) {
-			var pubtype = type || 'any';
-			s = subscribers[pubtype] || [];
-			max = s.length;
-
-			for (var i = 0; i < max; i += 1) {
-
-				if (action === 'publish') {
-					s[i](arg);
-				} else {
-					if (s[i] === arg) {
-						s.splice(i, 1);
-					}
-				}
-			}
+			// render template for home
+			client.render("error", data);
 		}
-	}; exports.broadcast = broadcast;
+	};
 
-	var Api = function(config) {
+	//////////////////////////////////////////////////////////
+	//														//
+	//				Application Configurations 				//
+	//														//
+	//////////////////////////////////////////////////////////
 
-		function call(uri, data, fn) {
+	var appConfig = {
 
-			var connection_url = "http://" + config.api.host;
-			connection_url += ":" + config.api.port + "/";
+		state: "development",
 
-			fn = fn || function(){};
+		development: {
+
+			api: {
+
+				host: "localhost",
+				port: 3000
+			},
+
+			modules: ["user", "error"],
+
+			// show info logs
+			log: true
+		},
+
+		testing: {
+
+			api: {
+
+				host: "localhost",
+				port: 3000
+			},
+
+			modules: ["user", "error"],
+
+			// show info logs
+			log: true
+		},
+
+		production: {
+
+			api: {
+
+				host: "localhost",
+				port: 3000
+			},
+
+			modules: ["user", "error"]
+		}
+	}
+
+	var clientConfig = {
+
+		tags: {
+			controllers: "data-controller"
+		}
+	}
+
+	//////////////////////////////////////////////////////////
+	//														//
+	//			Framework Core - try not to edit...			//
+	//														//
+	//////////////////////////////////////////////////////////
+
+	var Client = function($, _) {
+
+		if(!clientConfig) {
+			throw new Error("No client configuration available...");
+		}
+
+		var exports = {};
+
+		var render = function(ctrl, data) {
+
+			if(!ctrl)
+				throw new Error("No controller specified");
+
+			// TODO: increase native code
+			// we need to reduce external lib using
+			// such as jQuery or underscore
 			data = data || {};
 
-			$.get(connection_url + uri, data, function(data) {
-				fn(toString.call(data) == toString.call("str") ?
-					JSON.parse(data) : data)
-			});
-		};
+			var tag = clientConfig.tags.controllers;
+			var _t = $("["+tag+"='"+ctrl+"']").html() || "";
 
-		function init() {
-			return call;
+			if(!_t)
+				throw new Error("No template available for '"+ctrl+"' controller.");
+
+			var compiled = _.template(_t);
+			return compiled(data);
+
+		}; exports.render = render;
+
+		var init = function(){
+
+			// merge underscore lib into client
+			exports.util = _;
+
+			// merge jquery lib into client
+			exports = $.extend($, exports);
+
+			return exports;
+		}
+
+		return init();	
+	}
+
+	var Router = function(client) {
+
+		var exports = {};
+		var currentCtrl = null;
+
+		var run = function() {
+
+			if(!currentCtrl)
+				throw new Error("No controller loaded.");
+
+			// start controller
+			// create a new undescore wrapper
+			currentCtrl(new Client(_));
+
+		}; exports.run = run;
+
+		var get = function(ctrl) {
+
+			if(!controllers[ctrl]) {
+				throw new Error("Controller not found: " + ctrl.toString());
+			}
+
+			else {
+
+				currentCtrl = controllers[ctrl];
+				run();
+			}
+
+		}; exports.get = get;
+
+		var init = function(){
+
+			// bind hash changes
+			client(window).on('hashchange', function() {
+				location.hash = location.hash.replace("#", "");
+				get(location.hash)
+
+			});
+
+			return exports;
 		}
 
 		return init();
+	}; 
 
-	}; exports.api = new Api(core.config);
+	var Core = function(config) {
 
-	function init() {
-		core.log.info("sandbox initialized successfully...")
-		return exports;
-	}	
+		var exports = {log: {}, config: config, client: null};
 
-	return init();	
-};
+		// wrap logger
+		function info(msg) {
 
+			if(!config.log) 
+				return;
 
-var Application = function(sandbox) {
+			if(toString.call(msg) == toString.call("str"))
+				console.log("info: " + msg);
+			else
+				console.log(msg);
+		};
+		exports.log.info = info;
 
-	var exports = {};
-	var modules = {};
-	var queue = {};
+		// wrap logger
+		function error(msg) {
+			console.error(msg);
+		};
+		exports.log.error = error;
 
-	function start(name) {
+		function init() {
 
-		modules[name] = modules[name].init(sandbox);
+			// start client
+			exports.client = new Client($, _);
 
-	}; exports.start = start;
+			// run unit test
+			info("core initialized successfully...")
 
-	function startAll() {
+			return exports;
+		}	
 
-		for(var k in modules)
-			start(k);
+		return init();
+	}
 
-		core.log.info("app started successfully")
+	var Sandbox = function(core) {
 
-	}; exports.startAll = startAll;
+		var exports = {
+			modules: core.config.modules,
+			selector: $
+		};
 
-	function stop(name) {
+		var subscribers = {
+				any: [] // event type: subscribers
+			};
 
-		modules[name] = modules[name] = {};
-		modules[k].destroy = modules[k].destroy || function(){};
-		modules[k].destroy();
-		modules[k] = null;
-		return true;
+		var broadcast = {
 
-	}; exports.stop = stop;
+			subscribe: function (type, fn) {
 
-	function stopAll() {
+				type = type || 'any';
 
-		for(var k in modules) 
-			stop(k)
+				if (typeof subscribers[type] === "undefined") {
+					subscribers[type] = [];
+				}
 
-		core.log.info("app stopped successfully");
-		return true;
+				subscribers[type].push(fn);
+			},
 
-	}; exports.stopAll = stopAll;
+			unsubscribe: function (type, fn) {
+				this.visitSubscribers('unsubscribe', fn, type);
+			},
 
-	function register(name) {
+			publish: function (type, publication) {
+				this.visitSubscribers('publish', publication, type);
+			},
 
-		if(window[name + "_module"]) {
+			visitSubscribers: function (action, arg, type) {
+				var pubtype = type || 'any';
+				s = subscribers[pubtype] || [];
+				max = s.length;
 
-			var m = window[name + "_module"];
-			modules[name] = new m(sandbox);
-			return true;
-		}
+				for (var i = 0; i < max; i += 1) {
 
-		else
-			return false;
+					if (action === 'publish') {
+						s[i](arg);
+					} else {
+						if (s[i] === arg) {
+							s.splice(i, 1);
+						}
+					}
+				}
+			}
+		}; exports.broadcast = broadcast;
+
+		var Api = function(config) {
+
+			function call(uri, data, fn) {
+
+				var connection_url = "http://" + config.api.host;
+				connection_url += ":" + config.api.port + "/";
+
+				fn = fn || function(){};
+				data = data || {};
+
+				$.get(connection_url + uri, data, function(data) {
+					fn(toString.call(data) == toString.call("str") ?
+						JSON.parse(data) : data)
+				});
+			};
+
+			function init() {
+				return call;
+			}
+
+			return init();
+
+		}; exports.api = new Api(core.config);
+
+		function init() {
+			core.log.info("sandbox initialized successfully...")
+			return exports;
+		}	
+
+		return init();	
 	};
 
-	function init() {
 
-		for(var i = 0; i < sandbox.modules.length; i++)
-			if(!register(sandbox.modules[i]))
-				core.log.error("Module not found: " + sandbox.modules[i])
+	window.Application = function(sandbox) {
 
-		core.log.info("app initializing...")
-		sandbox.broadcast.publish("app/ready", {});
-		return exports;
-	}	
+		var exports = {};
+		var modules = {};
+		var queue = {};
 
-	return init();	
-}
+		function start(name) {
 
-var config = appConfig[appConfig.state];
-var core = new Core(config);
+			modules[name] = modules[name].init(sandbox);
 
-var sandbox = new Sandbox(core);
+		}; exports.start = start;
+
+		function startAll() {
+
+			for(var k in modules)
+				start(k);
+
+			core.log.info("app started successfully")
+
+		}; exports.startAll = startAll;
+
+		function stop(name) {
+
+			modules[name] = modules[name] = {};
+			modules[k].destroy = modules[k].destroy || function(){};
+			modules[k].destroy();
+			modules[k] = null;
+			return true;
+
+		}; exports.stop = stop;
+
+		function stopAll() {
+
+			for(var k in modules) 
+				stop(k)
+
+			core.log.info("app stopped successfully");
+			return true;
+
+		}; exports.stopAll = stopAll;
+
+		function register(name) {
+
+			if(window[name + "_module"]) {
+
+				var m = window[name + "_module"];
+				modules[name] = new m(sandbox);
+				return true;
+			}
+
+			else
+				return false;
+		};
+
+		function init() {
+
+			for(var i = 0; i < sandbox.modules.length; i++)
+				if(!register(sandbox.modules[i]))
+					core.log.error("Module not found: " + sandbox.modules[i])
+
+			core.log.info("app initializing...")
+			sandbox.broadcast.publish("app/ready", {});
+			return exports;
+		}	
+
+		return init();	
+	}
+
+	var config = appConfig[appConfig.state];
+	window.core = new Core(config);
+
+	window.sandbox = new Sandbox(core);
+
+})(window)
