@@ -257,7 +257,7 @@ var Model = function(type) {
 					if(model[k].default)
 						obj[k] = generate_default(model[k].default)
 					else
-						throw new Error("Error parsing required field '"+k+"'. "+e);
+						throw new Error("Could not parse required field '" + k + "'. " + e.message.toString());
 				}
 			}
 			else {
@@ -331,14 +331,14 @@ var Model = function(type) {
 		}, function(err, docs) {
 
 			if(err)
-				throw new Error("Problem querying database. " + err.toString());
+				throw new Error("Problem querying database. " + err.message.toString());
 
 			if(!docs || docs.length == 0) {
 
 				db.save(obj, function(err, obj){
 
 					if(err)
-						throw new Error("Problem querying database. " + err.toString());
+						throw new Error("Problem querying database. " + err.message.toString());
 
 					cb(true);
 				});
@@ -351,7 +351,7 @@ var Model = function(type) {
 				}, obj, {multi:false}, function(err) {
 
 					if(err)
-						throw new Error("Problem querying database. " + err.toString());
+						throw new Error("Problem querying database. " + err.message.toString());
 
 					cb(true);
 				});

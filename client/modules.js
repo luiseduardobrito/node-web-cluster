@@ -81,7 +81,7 @@
 		var signup = function(data) {
 
 			// prepare successful login callback
-			broadcast.subscribe("user/signup/success", function(data) {
+			broadcast.once("user/signup/success", function(data) {
 				
 				alert("Result: " + data.message || "User created successfully");
 
@@ -93,7 +93,7 @@
 			});
 	
 			// prepare error login callback
-			broadcast.subscribe("user/signup/error", function(data) {	
+			broadcast.once("user/signup/error", function(data) {	
 				alert("Error: "+ data.message || "unknown error.");
 			});
 
@@ -105,7 +105,6 @@
 				password: $("#password").val()
 
 			}, function(response) {
-
 				broadcast.publish("user/signup/" + response.result, response || {});
 			});
 

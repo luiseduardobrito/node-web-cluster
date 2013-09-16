@@ -36,7 +36,7 @@ module.exports = {
 
 			response(res).json({
 				result: "error",
-				message: e.toString()
+				message: e.message.toString()
 			})
 
 			return;
@@ -88,7 +88,7 @@ module.exports = {
 
 			response(res).json({
 				result: "error",
-				message: e.toString()
+				message: e.message.toString()
 			})
 
 			return;
@@ -134,11 +134,11 @@ module.exports = {
 				return;
 			});
 		}
-		catch(err) {
+		catch(e) {
 
 			response(res).json({
 				result: "error",
-				message: err.toString()
+				message: e.message.toString()
 			});
 		}
 	},
