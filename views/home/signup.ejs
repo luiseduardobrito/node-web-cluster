@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+
+<form data-module="user" data-method="signup">
+	<br><input type="text" id="name" placeholder="name">
+	<br><input type="text" id="email" placeholder="name@email.com">
+	<br><input type="password" id="password" placeholder="12345678">
+
+	<% if(destination){ %>
+	<input type="hidden" id="destination" value="<%= destination %>">
+	<% } %>
+
+	<input type="submit"  value="Sign-up">
+</form>
+
+<br />
+
+<a href="/">Back</a>

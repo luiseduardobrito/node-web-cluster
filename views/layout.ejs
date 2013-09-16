@@ -16,15 +16,17 @@
 	</head>
 	<body>
 
-		<div class="header">
+		<section class="header">
 			<b>Title:</b> <%- title %>
 		<div>
 
 		<br />
 
-		<div class="content" data-container="controllers">
-			<%- body %>
-		</div>
+		<section class="content">
+			<div data-container="controllers">
+				<%- body %>
+			</div>
+		</section>
 
 		<!-- system deps -->
 		<script src="/socket.io/socket.io.js"></script>

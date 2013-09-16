@@ -43,7 +43,7 @@ module.exports = {
 		}
 	},
 
-	signin: function(req, res) {
+	signup: function(req, res) {
 
 		try {
 
@@ -63,7 +63,7 @@ module.exports = {
 
 				if(r.length != 0) {
 
-					_res.json({
+					response(_res).json({
 						result: "error",
 						message: "email already in database"
 					})
@@ -75,7 +75,7 @@ module.exports = {
 
 					model.save(_user, function(r){
 
-						_res.json({
+						response(_res).json({
 							result: "success",
 							message: "user created successfully"
 						});

@@ -20,6 +20,14 @@ module.exports = {
 		});
 	},
 
+	signup: function(req, res) {
+
+		response(res).view("home/signup", {
+			title: "node-web-cluster",
+			destination: req.param("destination") || "dashboard"
+		});
+	},	
+
 	dashboard: function(req, res) {
 
 		policy(req, res).check(["logged_in"], function() { 
