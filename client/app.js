@@ -132,7 +132,7 @@
 				});
 			});
 
-			$(tag + "a").on("click", function(e){
+			$(tag + " a").on("click", function(e){
 
 				e.preventDefault();
 
