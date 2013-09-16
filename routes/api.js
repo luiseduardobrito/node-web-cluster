@@ -10,11 +10,12 @@ module.exports = {
 		// views
 		"/": "home",
 		"/login": "home/login",
+		"/signup": "home/signup",
 		"/dashboard": "home/dashboard",
 
 		// api
 		"/api/user": "user",
-		"/api/user/signin": "user/signin",
+		"/api/user/signup": "user/signup",
 		"/api/user/login": "user/login",
 		"/api/user/logout": "user/logout",
 

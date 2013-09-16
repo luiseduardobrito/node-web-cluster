@@ -59,18 +59,18 @@
 			// prepare successful login callback
 			broadcast.once("user/logout/success", function(data) {
 
-				alert(data.message || "User successfully logged out.");
+				alert("Result: " + data.message || "User successfully logged out.");
 				core.client.render("/");
 
 			});
 	
 			// prepare error login callback
-			broadcast.once("user/logout/error", function(data) {	
+			broadcast.once("user/logout/error", function(data) {
 				alert("Error: "+ data.message || "unknown error.");
 			});
 
 			// call the api
-			sandbox.api("user/logout", function(response) {
+			sandbox.api("user/logout", {}, function(response) {
 
 				broadcast.publish("user/logout/" + response.result, response || {});
 
@@ -82,12 +82,14 @@
 
 			// prepare successful login callback
 			broadcast.subscribe("user/signup/success", function(data) {
-			
-				var user_info = sandbox.client("#user-info");
-				user_info.show();
+				
+				alert("Result: " + data.message || "User created successfully");
 
-				var user = sandbox.client("#user");
-				user.html(data.name);
+				if($("#destination").val())
+					core.client.render("login?destination=" + encodeURI($("#destination").val()));
+
+				else
+					core.client.render("dashboard");
 			});
 	
 			// prepare error login callback
@@ -96,7 +98,7 @@
 			});
 
 			// call the api
-			sandbox.api("user/signin", {
+			sandbox.api("user/signup", {
 
 				name: $("#name").val(),
 				email: $("#email").val(),
@@ -104,8 +106,7 @@
 
 			}, function(response) {
 
-				broadcast.publish("user/signin/" + response.result, 
-					response.data.user || {});
+				broadcast.publish("user/signup/" + response.result, response || {});
 			});
 
 		}; exports.signup = signup;
