@@ -4,8 +4,9 @@ module.exports = {
 
 	index: function(req, res) {
 	
-		response(res).json({
-			result: "success"
+		response(res).view("home/index", {
+			title: "node-web-cluster",
+			message: "Welcome to the index page!"
 		});
 	},
 

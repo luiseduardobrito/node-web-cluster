@@ -9,34 +9,69 @@
 	window.user_module = function(sandbox) {
 
 		var exports = {};
-		var events = {};
+		var broadcast = sandbox.broadcast;
 
 		//////////////////////////////
 		// 		user actions		//
 		//////////////////////////////
-		events["user"] = function(data) {
+		var me = function(data) {
 
-			core.log.info("user/");
-
+			// call the api
 			sandbox.api("user", {}, function(response) {
-				sandbox.broadcast.publish("user/" + response.result, 
+				broadcast.publish("user/me/" + response.result, 
 					response.data.user || {});
 			});
+
 		};
 
-		events["user/login"] = function(data) {
+		var login = function(data) {
+
+			// prepare successful login callback
+			broadcast.subscribe("user/login/success", function(data) {
+			
+				var user_info = sandbox.client("#user-info");
+				user_info.show();
+
+				var user = sandbox.client("#user");
+				user.html(data.name);
+			});
+	
+			// prepare error login callback
+			broadcast.subscribe("user/login/error", function(data) {	
+				alert("error");
+			});
+
+			// call the api
 			sandbox.api("user/login", {
 
 				email: data.email,
 				password: data.password
 
 			}, function(response) {
-				sandbox.broadcast.publish("user/login/" + response.result, 
+
+				broadcast.publish("user/login/" + response.result, 
 					response.data.user || {});
 			});
 		};
 
-		events["user/signup"] = function(data) {
+		var signup = function(data) {
+
+			// prepare successful login callback
+			broadcast.subscribe("user/signup/success", function(data) {
+			
+				var user_info = sandbox.client("#user-info");
+				user_info.show();
+
+				var user = sandbox.client("#user");
+				user.html(data.name);
+			});
+	
+			// prepare error login callback
+			broadcast.subscribe("user/signup/error", function(data) {	
+				alert("error");
+			});
+
+			// call the api
 			sandbox.api("user/signin", {
 
 				name: data.name,
@@ -44,41 +79,18 @@
 				password: data.password
 
 			}, function(response) {
-				sandbox.broadcast.publish("user/signin/" + response.result, 
+
+				broadcast.publish("user/signin/" + response.result, 
 					response.data.user || {});
 			});
-		};
 
-
-		//////////////////////////////
-		// 		action responses	//
-		//////////////////////////////
-		events["user/login/success"] = function(data) {
-			
-			var user_info = sandbox.selector("#user-info");
-			user_info.show();
-
-			var user = sandbox.selector("#user");
-			user.html(data.name);
-		};
-
-		events["user/login/error"] = function(data) {
-			
-			alert("error");
 		};
 
 		function init() {
 
 			core.log.info("starting user module...")
-
-			var broadcast = sandbox.broadcast;
-
-			for(var k in events)
-				if(typeof events[k] == typeof function(){})
-					broadcast.subscribe(k, events[k]);	
-
 			return exports;
-			f
+
 		}; exports.init = init;
 
 		function destroy() {
@@ -121,7 +133,7 @@
 			alert("Oops, The app has crashed!");
 		}
 
-		function init() {
+		var init = function() {
 
 			core.log.info("starting error module...")
 
@@ -135,7 +147,7 @@
 
 		}; exports.init = init;
 
-		function destroy() {
+		var destroy = function() {
 
 			core.log.info("destroying error module...")
 			

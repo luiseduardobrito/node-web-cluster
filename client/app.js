@@ -2,55 +2,6 @@
 
 	//////////////////////////////////////////////////////////
 	//														//
-	//				Application Controllers 				//
-	//														//
-	//////////////////////////////////////////////////////////
-
-	var controllers = {
-
-		home: function(client) {
-
-			// define view data
-			var data = {
-
-				title: "note-web-cluster",
-				version: "v0.0.2"
-			};
-
-			// render template for home
-			client.render("home", data);
-		},
-
-		help: function(client) {
-
-			// define view data
-			var data = {
-
-				title: "help",
-				message: ">> help message here <<"
-			};
-
-			// render template for home
-			client.render("help", data);
-		},
-
-		// controller for 404 error
-		_error: function(client) {
-
-			// define view data
-			var data = {
-
-				title: "error",
-				code: "404"
-			};
-
-			// render template for home
-			client.render("error", data);
-		}
-	};
-
-	//////////////////////////////////////////////////////////
-	//														//
 	//				Application Configurations 				//
 	//														//
 	//////////////////////////////////////////////////////////
@@ -102,7 +53,9 @@
 	var clientConfig = {
 
 		tags: {
-			controllers: "data-controller"
+
+			// tag that specify the element content
+			container: "data-container",
 		}
 	}
 
@@ -120,33 +73,46 @@
 
 		var exports = {};
 
-		var render = function(ctrl, data) {
+		var render = function(ctrl, data, cb) {
 
-			if(!ctrl)
+			if(!ctrl || !ctrl.length)
 				throw new Error("No controller specified");
 
-			// TODO: increase native code
-			// we need to reduce external lib using
-			// such as jQuery or underscore
-			data = data || {};
+			else if(ctrl == "/" || ctrl[0] == '/')
+				var uri = ctrl;
+			
+			else 
+				var uri = "/" + ctrl;
 
-			var tag = clientConfig.tags.controllers;
-			var _t = $("["+tag+"='"+ctrl+"']").html() || "";
+			data = data || null;
+			cb = cb || function(){};
 
-			if(!_t)
-				throw new Error("No template available for '"+ctrl+"' controller.");
+			var tag = "[" + clientConfig.tags.container + "='controllers']";
+			var _ctrl = ctrl;
 
-			var compiled = _.template(_t);
-			return compiled(data);
+			$(tag).load(uri +" "+ tag, data, function(data){
+				history.pushState('', uri || _ctrl, uri);
+			})
 
 		}; exports.render = render;
 
+		var redirect = function(url) {
+
+			document.location.replace(url);
+
+		}; exports.redirect = redirect;
+
 		var init = function(){
 
-			// merge underscore lib into client
 			exports.util = _;
 
-			// merge jquery lib into client
+			$("a").on("click", function(e){
+
+				e.preventDefault();
+				core.client.render($(this).attr("href"));
+				return false;
+			})
+
 			exports = $.extend($, exports);
 
 			return exports;
@@ -155,54 +121,15 @@
 		return init();	
 	}
 
-	var Router = function(client) {
-
-		var exports = {};
-		var currentCtrl = null;
-
-		var run = function() {
-
-			if(!currentCtrl)
-				throw new Error("No controller loaded.");
-
-			// start controller
-			// create a new undescore wrapper
-			currentCtrl(new Client(_));
-
-		}; exports.run = run;
-
-		var get = function(ctrl) {
-
-			if(!controllers[ctrl]) {
-				throw new Error("Controller not found: " + ctrl.toString());
-			}
-
-			else {
-
-				currentCtrl = controllers[ctrl];
-				run();
-			}
-
-		}; exports.get = get;
-
-		var init = function(){
-
-			// bind hash changes
-			client(window).on('hashchange', function() {
-				location.hash = location.hash.replace("#", "");
-				get(location.hash)
-
-			});
-
-			return exports;
-		}
-
-		return init();
-	}; 
-
 	var Core = function(config) {
 
-		var exports = {log: {}, config: config, client: null};
+		var exports = {
+
+			log: {},
+			config: config, 
+
+			client: new Client($, _)
+		};
 
 		// wrap logger
 		function info(msg) {
@@ -224,9 +151,6 @@
 		exports.log.error = error;
 
 		function init() {
-
-			// start client
-			exports.client = new Client($, _);
 
 			// run unit test
 			info("core initialized successfully...")

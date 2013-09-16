@@ -15,7 +15,12 @@
 		<link href="/assets/stylesheets/style.css" rel="stylesheet">
 	</head>
 	<body>
-		<%- body %>
+
+		<b>Title:</b> <%- title %>
+
+		<div data-container="controllers">
+			<%- body %>
+		</div>
 
 		<!-- system deps -->
 		<script src="/socket.io/socket.io.js"></script>
