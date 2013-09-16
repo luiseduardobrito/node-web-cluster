@@ -10,6 +10,7 @@ var express = require('express');
 var routes = require('../routes');
 var http = require('http');
 var path = require('path');
+var expressLayouts = require('express-ejs-layouts');
 
 var Server = function(cb) {
 
@@ -18,8 +19,12 @@ var Server = function(cb) {
 
 	// all environments
 	app.set('port', process.env.PORT || 3000);
-	app.set('views', path.join(__dirname, '../views'));
+
+	app.use("/js", express.static(path.resolve(__dirname, "../client")));
+	app.use("/assets", express.static(path.resolve(__dirname, "../assets")));
 	app.set('view engine', 'ejs');
+	app.use(expressLayouts)
+
 	app.use(express.favicon());
 	
 	// express own logger
@@ -38,7 +43,6 @@ var Server = function(cb) {
 	app.use(express.cookieParser('your secret here'));
 	app.use(express.session());
 	app.use(app.router);
-	app.use(express.static(path.join(__dirname, '../public')));
 
 	// development only
 	if ('development' == app.get('env')) {
@@ -47,14 +51,8 @@ var Server = function(cb) {
 
 	// prepare routes
 	routes.bind(app, function(app) {
-
-		http.createServer(app).listen(app.get('port'), function(){
-
-			console.log('Worker listening on port ' + app.get('port'));
-			cb(app);
-
-		});
+		cb(http.createServer(app), app);
 	});
 }
 
-module.exports = new Server();
+module.exports = Server;

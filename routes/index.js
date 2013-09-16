@@ -36,6 +36,9 @@ var Router = function(api) {
 			if(uri.split('/').length == 1)
 				uri = uri + "/index"
 
+			if(!method(uri))
+				throw new Error("Method '" + uri + "' not found in the api controller.")
+
 			app.get(k, method(uri));
 		}
 

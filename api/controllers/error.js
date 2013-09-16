@@ -10,7 +10,7 @@ module.exports = {
 			code: 500,
 			message: "unknown"
 
-		});
+		}, 500);
 	},
 
 	not_found: function(req, res) {
@@ -21,6 +21,6 @@ module.exports = {
 			code: 404,
 			message: "not found"
 
-		});
+		}, 404);
 	}
 }

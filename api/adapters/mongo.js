@@ -1,5 +1,6 @@
 var mongojs = require('mongojs');
-var config = require("../../config/mongo.js");
+var config = require("../../config/general");
+config = config[config.state].db;
 
 var DEFAULT_PORT = 27017;
 

@@ -311,8 +311,12 @@ var Model = function(type) {
 
 		cb = cb || function(){};
 		
-		if(!obj._model) {
-			throw new Error("Object provided is not from any framework model");
+		if(!obj._model || obj._model == null || obj._model == "") {
+			throw new Error("Object provided is not from any framework model, we can't persist it");
+		}
+
+		if(!obj._id) {
+			throw new Error("Object provided has none primary key, the default '_id' was removed");
 		}
 
 		var db = mongo.connect(obj._model);
@@ -320,13 +324,40 @@ var Model = function(type) {
 		// place timestamp by default
 		obj.timestamp = obj.timestamp || (new Date()).toISOString();
 
-		db.save(obj, function(err, obj){
+		db.find({
+
+			_id: obj._id
+
+		}, function(err, docs) {
 
 			if(err)
-				throw new Error("Problem querying database: " + err);
+				throw new Error("Problem querying database. " + err.toString());
 
-			cb(obj || true);
-		});
+			if(!docs || docs.length == 0) {
+
+				db.save(obj, function(err, obj){
+
+					if(err)
+						throw new Error("Problem querying database. " + err.toString());
+
+					cb(true);
+				});
+			}
+
+			else {
+
+				db.update({
+					_id: obj._id
+				}, obj, {multi:false}, function(err) {
+
+					if(err)
+						throw new Error("Problem querying database. " + err.toString());
+
+					cb(true);
+				});
+
+			}
+		})
 
 		return true;
 

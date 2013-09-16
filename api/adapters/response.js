@@ -11,7 +11,10 @@ var Response = function(res) {
 
 	var exports = {};
 
-	function json(obj) {
+	function json(obj, code) {
+
+		obj = obj || {};
+		code = code || obj.code || 200;
 
 		try {
 
@@ -26,7 +29,7 @@ var Response = function(res) {
 				delete r._timestamp;
 			}
 
-			_res.json(r);
+			_res.json(r, code);
 		}
 
 		catch(e) {
@@ -44,10 +47,26 @@ var Response = function(res) {
 				}
 			});
 
-			_res.json(err._sanitize());
+			_res.json(err._sanitize(), err.code);
 		}
 
 	}; exports.json = json;
+
+	function view(name, data, code) {
+
+		code = code || data.code || 200;
+
+		_res.render(name, data, 
+			function(err, html) {
+				res.send(html);
+		});
+		
+	}; exports.view = view;
+
+	function redirect(url){
+		res.redirect(url);
+	}
+	exports.redirect = redirect;
 
 	function init() {
 		return exports;
