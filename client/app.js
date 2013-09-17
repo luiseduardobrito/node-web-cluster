@@ -78,6 +78,9 @@
 			if(!ctrl || !ctrl.length)
 				throw new Error("No controller specified");
 
+			else if(ctrl.indexOf("javascript:") == 0)
+				return;
+
 			else if(ctrl[0] == "#") {
 
 				location.hash = ctrl
@@ -125,7 +128,10 @@
 
 		var bindings = function(tag){
 
-			$(tag + " a[data-module][data-method]").attr("href", "javascript:;");
+			$("a").each(function(){
+				if(!$(this).attr("href") || !$(this).attr("href").length)
+					$(this).attr("href", "javascript:;");
+			});
 
 			$(tag + " form[data-module][data-method]").on("submit", function(e){
 
