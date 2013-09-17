@@ -1,7 +1,9 @@
 var extend = require("extend");
 var crypto = require("crypto");
-
 var mongo = require("./mongo");
+var log = require("winston");
+
+var DEFAULT_ENCRYPTION = "sha256";
 
 var Type = function() {
 
@@ -51,19 +53,31 @@ var Type = function() {
 
 	function password(input) {
 
-		if(input === null) {
-			throw new Error("The input should not be null.");
+		try {
+
+			object(input)
+
+			if(typeof input._encrypted === typeof "str")
+				return true;
 		}
 
-		else if(typeof input !== typeof "str") {
-			throw new Error("The input should be a string");
-		}
+		catch(e)
+		{
 
-		else if(!input.length || input.length < 8) {
-			throw new Error("The input password should be at least 8 characters length.");	
-		}
+			if(input === null) {
+				throw new Error("The input should not be null.");
+			}
 
-		return true;
+			else if(typeof input !== typeof "str") {
+				throw new Error("The input should be a string");
+			}
+
+			else if(!input.length || input.length < 8) {
+				throw new Error("The input password should be at least 8 characters length.");	
+			}
+
+			return true;
+		}
 	}
 
 	handlers.password = {
@@ -210,6 +224,26 @@ var Model = function(type) {
 		return _this;
 	}
 
+	function encrypt(value, method){
+
+		method = method || DEFAULT_ENCRYPTION || "sha256";
+
+		if(toString.call(value) == toString.call({})
+			&& value._encrypted)
+			return value;
+
+		try {
+			return {
+				_encrypted: crypto.createHash(method).update(value).digest("hex"),
+				_method: method
+			};
+
+		} catch(e) {
+			log.error(e)
+			throw new Error("Problem encrypting password using " + (method || "sha256") + " algorithm.");
+		}
+	}
+
 	function generate_default(d) {
 
 		if(d == "hashkey") {
@@ -243,7 +277,7 @@ var Model = function(type) {
 				obj[k] = model[k]
 			}
 
-			else if(model[k].required) {
+			else if(model[k].required || model[k].type == "password") {
 
 				try {
 
@@ -267,6 +301,14 @@ var Model = function(type) {
 				catch(e) {
 					obj[k] = null
 				}
+			}
+
+			if(model[k].type == "password") {
+
+				if(model[k] !== false && (!model[k].encryption || model[k].encryption == true))
+					model[k].encryption = DEFAULT_ENCRYPTION || "sha256";
+
+				obj[k] = encrypt(obj[k], model[k].encryption)
 			}
 		}
 
@@ -319,7 +361,9 @@ var Model = function(type) {
 			throw new Error("Object provided has none primary key, the default '_id' was removed");
 		}
 
+		// ensure encryption
 		var db = mongo.connect(obj._model);
+		obj = create(obj._model, obj);
 
 		// place timestamp by default
 		obj.timestamp = obj.timestamp || (new Date()).toISOString();
@@ -368,6 +412,13 @@ var Model = function(type) {
 		name = name;
 		cb = cb || function(){};
 		rest = rest || {};
+
+		var m = require("../models/" + name + "_model");
+
+		for(var k in rest) {
+			if(m[k] && m[k].type == "password" && m[k].encryption !== false)
+				rest[k] = encrypt(rest[k], m[k].encryption)
+		}
 
 		var db = mongo.connect(name);
 

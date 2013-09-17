@@ -17,8 +17,10 @@ module.exports = {
 	password: {
 
 		required: true,
-		type: "password"
+		type: "password",
 
+		// default: sha256
+		encprytion: "sha256"
 	},
 
 	access_token: {
