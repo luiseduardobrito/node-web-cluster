@@ -293,27 +293,87 @@
 
 		var Api = function(config) {
 
-			function call(uri, data, fn) {
+			function _this (uri, data, methods) {
+
+				this._uri = uri;
+				this._data = data;
+				this._methods = methods || {
+					success: function(){},
+					error: function(){
+						throw new Error("Uncaught problem with API connection");
+					}
+				};
+			};
+
+			_this.prototype.success = function(fn) {
+				this._methods["success"] = fn;
+				return this;
+			};
+
+			_this.prototype.error = function(fn) {
+				this._methods["error"] = fn;
+				return this;
+			};
+
+			_this.prototype.get = function() {
 
 				var connection_url = "http://" + config.api.host;
 				connection_url += ":" + config.api.port + "/api/";
 
-				fn = fn || function(){};
-				data = data || {};
+				data = this._data || {};
+				var __this = this;
 
-				$.get(connection_url + uri, data, function(data) {
-					fn(toString.call(data) == toString.call("str") ?
-						JSON.parse(data) : data)
+				$.get(connection_url + this._uri, this._data, function(data) {
+
+					if(!data) {
+
+						var cb = __this._methods["error"] || 
+
+						cb();
+					}
+
+					var response = toString.call(data) == toString.call("str") ? 
+						JSON.parse(data) : data;
+
+					if(!response) {
+
+						var cb = __this._methods["error"] || function(){};
+						cb(response);
+					}
+
+					else if(response.result 
+						&& response.result == "success") {
+
+						var cb = __this._methods["success"] || function(){};
+						cb(response);
+					}
+
+					else if(response.result 
+						&& response.result == "error") {
+
+						var cb = __this._methods["error"] || function(){};
+						cb(response);
+					}
+
+					else {
+
+						var cb = __this._methods["error"] || function(){};
+						cb(response);
+					}
+
 				});
+
+				return this;
 			};
 
-			function init() {
-				return call;
-			}
+			return _this;
 
-			return init();
+		}; exports.api = function(url, data){
 
-		}; exports.api = new Api(core.config);
+			// TODO: improve API wrapper
+			var obj = new Api(core.config);
+			return new obj(url, data);
+		};
 
 		function init() {
 

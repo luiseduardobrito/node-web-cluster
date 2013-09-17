@@ -11,7 +11,7 @@ module.exports = function(req, res, ok) {
 		response(res).json({
 
 			result: "error",
-			description: "you're not logged in"
+			message: "you're not logged in"
 		});
 	}
 
