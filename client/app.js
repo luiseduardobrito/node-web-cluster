@@ -112,8 +112,7 @@
 
 				var action = $(this).attr("data-action") || "(function(){})();";
 
-				// execute script in private context
-				(new Function( "with(this) { " + action + " }")).call(this);
+				(new Function( "with(this) { try {" + action + "} catch(e){ throw e; } }")).call(this);
 			});
 
 		}; exports.publish = publish;
@@ -160,6 +159,24 @@
 
 				return false;
 			})
+
+			$("[data-event][data-on]").each(function(){
+
+				$(this).on($(this).attr("data-on") || "", function(e){
+
+					if(e && e.preventDefault) e.preventDefault();
+
+					var evt = $(this).attr("data-event");
+					var pub = $(this).attr("data-pub") || "return null";
+
+					pub = JSON.parse.call(this, pub);
+
+					window.sandbox.broadcast.publish(evt, pub);
+					return false;
+
+				});
+
+			});
 		}
 
 		var init = function(){
