@@ -55,10 +55,14 @@ var Type = function() {
 
 		try {
 
-			object(input)
+			if(toString.call(input) !== toString.call({}))
+				throw new Error("Input is not an object.")
 
 			if(typeof input._encrypted === typeof "str")
 				return true;
+
+			else
+				throw new Error("Input is a not an encrypted password");
 		}
 
 		catch(e)
@@ -75,7 +79,7 @@ var Type = function() {
 			else if(!input.length || input.length < 8) {
 				throw new Error("The input password should be at least 8 characters length.");	
 			}
-
+			
 			return true;
 		}
 	}

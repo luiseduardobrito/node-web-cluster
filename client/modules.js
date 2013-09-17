@@ -60,46 +60,24 @@
 
 		var logout = function(data) {
 
-			// prepare successful login callback
-			broadcast.once("user/logout/success", function(data) {
-
-				alert("Result: " + data.message || "User successfully logged out.");
-				core.client.render("/");
-
-			});
-	
-			// prepare error login callback
-			broadcast.once("user/logout/error", function(data) {
-				alert("Error: "+ data.message || "unknown error.");
-			});
-
 			// call the api
-			sandbox.api("user/logout", {}, function(response) {
+			sandbox.api("user/logout", {}).error(function(response) {
 
 				broadcast.publish("user/logout/" + response.result, response || {});
 
-			});
+			}).success(function(){
+
+				core.client.render("/");
+
+			}).error(function(){
+
+				core.client.render("/");
+
+			}).get();
 
 		}; exports.logout = logout;
 
 		var signup = function(data) {
-
-			// prepare successful login callback
-			broadcast.once("user/signup/success", function(data) {
-				
-				alert("Result: " + data.message || "User created successfully");
-
-				if($("#destination").val())
-					core.client.render("login?destination=" + encodeURI($("#destination").val()));
-
-				else
-					core.client.render("dashboard");
-			});
-	
-			// prepare error login callback
-			broadcast.once("user/signup/error", function(data) {	
-				alert("Error: "+ data.message || "unknown error.");
-			});
 
 			// call the api
 			sandbox.api("user/signup", {
@@ -108,9 +86,16 @@
 				email: $("#email").val(),
 				password: $("#password").val()
 
-			}, function(response) {
+			}).success(function(response) {
+
 				broadcast.publish("user/signup/" + response.result, response || {});
-			});
+				core.client.render("/");
+
+			}).error(function(response){
+
+				broadcast.publish("user/signup/" + response.result, response || {});
+
+			}).get();
 
 		}; exports.signup = signup;
 

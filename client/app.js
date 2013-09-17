@@ -114,8 +114,7 @@
 			$("[data-subscribe='"+event+"']").each(function(){
 
 				var action = $(this).attr("data-action") || "(function(){})();";
-
-				(new Function( "with(this) { try {" + action + "} catch(e){ throw e; } }")).call(this);
+				(new Function("data", "with(this) { try {" + action + "} catch(e){ throw e; } }")).call(this, data || {});
 			});
 
 		}; exports.publish = publish;
@@ -234,6 +233,12 @@
 			console.error(msg);
 		};
 		exports.log.error = error;
+
+		String.prototype.replaceAll = function(str1, str2, ignore)
+		{
+			return this.replace(new RegExp(str1.replace(/([\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g, function(c){return "\\" + c;}), "g"+(ignore?"i":"")), str2);
+
+		};
 
 		function init() {
 
@@ -364,7 +369,7 @@
 				data = this._data || {};
 				var __this = this;
 
-				$.get(connection_url + this._uri, this._data, function(data) {
+				$.get(connection_url + this._uri, data, function(data) {
 
 					if(!data) {
 
@@ -501,7 +506,7 @@
 				else {
 
 					var m = modules[data.module][data.method];
-					m(); 
+					m({}); 
 				}
 			});
 

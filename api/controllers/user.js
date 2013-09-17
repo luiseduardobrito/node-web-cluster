@@ -46,13 +46,10 @@ module.exports = {
 	signup: function(req, res) {
 
 		try {
-
-			var sha256 = crypto.createHash('sha256').update(req.param("password")).digest("hex");
-
 			var user = model.create("user", {
 				name: req.param("name"),
 				email: req.param("email"),
-				password: sha256,
+				password: req.param("password"),
 				access_token: req.param("access_token") || ""
 			});
 
@@ -98,13 +95,10 @@ module.exports = {
 	login: function(req, res) {
 
 		try {
-
-			var sha256 = crypto.createHash('sha256').update(req.param("password")).digest("hex");
-
 			model.find("user", {
 
 				email: req.param("email"),
-				password: sha256,
+				password: req.param("password"),
 
 			}, function(result) {
 
