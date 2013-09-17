@@ -25,32 +25,36 @@
 		}; exports.me = me;
 
 		var login = function(data) {
-
-			// prepare successful login callback
-			broadcast.once("user/login/success", function(data) {
-
-				if($("#destination").val())
-					core.client.render($("#destination").val());
-				else
-					core.client.render("dashboard");
-			});
 	
-			// prepare error login callback
-			broadcast.once("user/login/error", function(data) {	
-				alert("Error: "+ data.message || "unknown error.");
-			});
-
 			// call the api
 			sandbox.api("user/login", {
 
 				email: $("#email").val(),
 				password: $("#password").val()
 
-			}, function(response) {
+			}).error(function(response){
 
+				// broadcast problem with login
+				broadcast.publish("user/login/" + response.result, 
+					response || {});
+				
+			}).success(function(response) {
+
+				// broadcas to whole app
 				broadcast.publish("user/login/" + response.result, 
 					response.data.user || response || {});
-			});
+
+				if($("#destination").val())
+
+					// render destination controller
+					core.client.render($("#destination").val());
+
+				else
+
+					// render dashboard controller
+					core.client.render("dashboard");
+
+			}).get()
 
 		}; exports.login = login;
 

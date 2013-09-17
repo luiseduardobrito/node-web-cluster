@@ -100,9 +100,23 @@
 
 				bindings(tag);
 				history.pushState('', uri || _ctrl, uri);
+
+				sandbox.broadcast.publish("controller/ready");
 			})
 
 		}; exports.render = render;
+
+		var publish = function(event, data) {
+
+			$("[data-subscribe='"+event+"']").each(function(){
+
+				var action = $(this).attr("data-action") || "(function(){})();";
+
+				// execute script in private context
+				(new Function( "with(this) { " + action + " }")).call(this);
+			});
+
+		}; exports.publish = publish;
 
 		var redirect = function(url) {
 
@@ -253,7 +267,11 @@
 			},
 
 			publish: function (type, publication) {
+
 				this.visitSubscribers('publish', publication, type);
+
+				if(core && core.client)
+					core.client.publish(type, publication);
 			},
 
 			visitSubscribers: function (action, arg, type) {
