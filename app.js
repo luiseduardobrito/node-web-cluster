@@ -1,3 +1,5 @@
+var pjson = require("./package.json");
+
 var config = require("./config/general");
 var socket_config = require("./config/general");
 
@@ -22,6 +24,8 @@ var Cluster = function(cluster) {
 
 		if (cluster.isMaster) {
 
+			log.info((pjson.name || "web cluster") + " > starting infrastructure...");
+
 			for (var i = 0; i < numCPUs; i++)
 				cluster.fork()
 
@@ -41,7 +45,7 @@ var Cluster = function(cluster) {
 			var server = new Server(function(server, app){
 				server.listen(app.get('port'), function(){
 					socket = new Socket(server);
-					log.info('Worker listening on port ' + app.get('port'));
+					log.info('worker listening on port ' + app.get('port'));
 				});
 			});
 		}
@@ -63,5 +67,5 @@ var Cluster = function(cluster) {
 var cluster = new Cluster(cluster);
 
 cluster.start(function(){
-	log.info("Starting cluster with " + cluster.cpus + " forks.\n")
+	log.info("starting cluster with " + cluster.cpus + " forks.\n")
 });
