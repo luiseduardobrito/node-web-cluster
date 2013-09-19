@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "start": "node app.js",
+    "deploy": "node scripts/deploy.js",
+    "stop": "node scripts/stopall.js",
     "debug": "node-inspector --web-port=3333 & node --debug-brk app",
     "test": "nodeunit tests/*",
     "debug-test": "node-inspector --web-port=3333 & node --debug-brk `which nodeunit` tests/*",
@@ -19,7 +21,8 @@
     "mongojs": "~0.7.17",
     "async": "~0.2.9",
     "express-ejs-layouts": "~0.3.1",
-    "ejs": "~0.8.4"
+    "ejs": "~0.8.4",
+    "forever": "~0.10.8"
   },
   "devDependencies": {
     "nodeunit": "~0.8.1"
