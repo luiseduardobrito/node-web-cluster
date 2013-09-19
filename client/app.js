@@ -114,7 +114,7 @@
 			$("[data-subscribe='"+event+"']").each(function(){
 
 				var action = $(this).attr("data-action") || "(function(){})();";
-				(new Function("data", "with(this) { try {" + action + "} catch(e){ throw e; } }")).call(this, data || {});
+				(new Function("data", "{ try {" + action + "} catch(e){ throw e; } }")).call(this, data || {});
 			});
 
 		}; exports.publish = publish;
