@@ -83,7 +83,7 @@
 
 			else if(ctrl[0] == "#") {
 
-				location.hash = ctrl
+				location.hash = ctrl;
 				return;
 			}
 
@@ -234,16 +234,23 @@
 		};
 		exports.log.error = error;
 
+		// extend String object
 		String.prototype.replaceAll = function(str1, str2, ignore)
 		{
-			return this.replace(new RegExp(str1.replace(/([\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g, function(c){return "\\" + c;}), "g"+(ignore?"i":"")), str2);
+			return this.replace(
+				new RegExp(str1.replace(/([\,\!\\\^\$\{\}\[\]\(\)\.\*\+\?\|\<\>\-\&])/g, 
 
+					function(c){
+						return "\\" + c;
+					}
+
+				), "g"+(ignore?"i":"")), str2);
 		};
 
 		function init() {
 
 			// run unit test
-			info("core initialized successfully...")
+			info("core initialized successfully...");
 
 			return exports;
 		}	
@@ -351,6 +358,11 @@
 				};
 			};
 
+			_this.prototype.data = function(data) {
+				this._data = data || this._data || {};
+				return this;
+			};
+
 			_this.prototype.success = function(fn) {
 				this._methods["success"] = fn;
 				return this;
@@ -425,9 +437,9 @@
 
 			if(location.hash) {
 				core.client.render(location.hash);
-			}
+			};
 
-			core.log.info("sandbox initialized successfully...")
+			core.log.info("sandbox initialized successfully...");
 			return exports;
 		}	
 
@@ -452,7 +464,7 @@
 			for(var k in modules)
 				start(k);
 
-			core.log.info("app started successfully")
+			core.log.info("app started successfully");
 
 		}; exports.startAll = startAll;
 
@@ -469,7 +481,7 @@
 		function stopAll() {
 
 			for(var k in modules) 
-				stop(k)
+				stop(k);
 
 			core.log.info("app stopped successfully");
 			return true;
@@ -493,15 +505,15 @@
 
 			for(var i = 0; i < sandbox.modules.length; i++)
 				if(!register(sandbox.modules[i]))
-					core.log.error("Module not found: " + sandbox.modules[i])
+					core.log.error("Module not found: " + sandbox.modules[i]);
 
 			sandbox.broadcast.subscribe("module/call", function(data) {
 
 				if(!modules[data.module])
-					throw new Error("Module not found: " + data.module)
+					throw new Error("Module not found: " + data.module);
 
 				else if(!modules[data.module][data.method])
-					throw new Error("Method '" + data.method+"' not found in '" + data.module + "' module")
+					throw new Error("Method '" + data.method+"' not found in '" + data.module + "' module");
 				
 				else {
 
