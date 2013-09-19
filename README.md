@@ -20,3 +20,8 @@ npm run-script start-server
 
 * Visit our [wiki](https://github.com/luiseduardobrito/node-web-cluster/wiki) to get started!
 * Found some problem? Report it in the [issues](https://github.com/luiseduardobrito/node-web-cluster/issues) page!
+
+### Further Information
+
+* [Author GitHub Page](http://luiseduardobrito.github.io)
+* [Author email](mailto:luiseduardo14@gmail.com)
