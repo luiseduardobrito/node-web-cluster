@@ -4,6 +4,9 @@ var model = require("../adapters/model");
 var policy = require("../policies/");
 var response = require("../adapters/response");
 
+var language = require("../../language");
+var lang = language.getDefault();
+
 module.exports = {
 
 	index: function(req, res) {
@@ -18,7 +21,7 @@ module.exports = {
 				}, function(r) {
 
 					if(!r[0])
-						throw new Error("Error selecting user")
+						throw new Error(lang.error.internal || "Error selecting user")
 
 					response(res).json({
 
@@ -63,7 +66,7 @@ module.exports = {
 
 					response(_res).json({
 						result: "error",
-						message: "email already in database"
+						message: lang.user.email_registered || "email already registered"
 					})
 
 					return;
@@ -75,7 +78,7 @@ module.exports = {
 
 						response(_res).json({
 							result: "success",
-							message: "user created successfully"
+							message: lang.user.create_success || "user created successfully"
 						});
 					})
 				}
@@ -109,7 +112,7 @@ module.exports = {
 
 					response(res).json({
 						result: "error",
-						message: "invalid credentials"
+						message: lang.user.invalid_credentials || "invalid credentials"
 					});
 
 					return;
@@ -122,7 +125,7 @@ module.exports = {
 				response(res).json({
 
 					result: "success",
-					message: "user logged in successfully",
+					message: lang.user.login_success || "user logged in successfully",
 					data: {
 						user: result[0]._sanitize(result[0])
 					}
@@ -152,7 +155,7 @@ module.exports = {
 
 			response(res).json({
 				result: "success",
-				message: "user successfully logged out"
+				message: lang.user.logout_success || "user successfully logged out"
 			})
 		});
 	}

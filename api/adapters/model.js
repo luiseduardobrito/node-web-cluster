@@ -10,6 +10,9 @@ var crypto = require("crypto");
 var mongo = require("./mongo");
 var log = require("winston");
 
+var language = require("../../language");
+var lang = language.getDefault();
+
 var validate = require('validator').check;
 var sanitize = require('validator').sanitize
 
@@ -32,9 +35,9 @@ var Type = function() {
 
 		validate(input, {
 
-			notNull: 'The input should not be null',
-			isNumeric: 'Input is not a number',
-			isInt: 'The input is not an integer'
+			notNull: lang.type.not_null || 'The input should not be null',
+			isNumeric: lang.type.not_numeric || 'Input is not a number',
+			isInt: lang.type.not_integer || 'The input is not an integer'
 
 		}).notNull().isNumeric().isInt();
 
@@ -51,12 +54,12 @@ var Type = function() {
 
 		validate(input, {
 
-			notNull: 'The input should not be null',
+			notNull: lang.type.not_null || 'The input should not be null',
 
 		}).notNull();
 
 		if(typeof input !== typeof "str") {
-			throw new Error("The input should be a string");
+			throw new Error(lang.type.not_string || "The input should be a string");
 		}
 
 		return true;
@@ -73,13 +76,13 @@ var Type = function() {
 		try {
 
 			if(toString.call(input) !== toString.call({}))
-				throw new Error("Input is not an object.")
+				throw new Error(lang.type.not_object || "Input is not an object")
 
 			if(typeof input._encrypted === typeof "str")
 				return true;
 
 			else
-				throw new Error("Input is a not an encrypted password");
+				throw new Error(lang.type.not_encrypted || "Input is a not an encrypted password");
 		}
 
 		catch(e)
@@ -89,7 +92,7 @@ var Type = function() {
 			string(input);
 
 			if(!input.length || input.length < 8) {
-				throw new Error("The input password should be at least 8 characters length.");	
+				throw new Error(lang.type.not_enough_length || "The input should be at least 8 characters length");
 			}
 			
 			return true;
@@ -105,13 +108,13 @@ var Type = function() {
 	function email(input) {
 
 		if(typeof input !== typeof "str") {
-			throw new Error("The input should be a string");
+			throw new Error(lang.type.not_string || "The input should be a string");
 		}
 
 		else {
 
 			if(input.indexOf('@') == -1 || input.indexOf('.') == -1){
-				throw new Error("The input should be a valid email");
+				throw new Error(lang.type.not_email || "The input should be a valid email");
 			}
 
 			try {
@@ -122,7 +125,7 @@ var Type = function() {
 					throw new Error();
 			}
 			catch(e) {
-				throw new Error("The domain should be valid.");
+				throw new Error(lang.type.not_valid_domain || "The email domain should be valid.");
 			}
 		}
 
@@ -138,15 +141,15 @@ var Type = function() {
 	function object(input) {
 
 		if(input === null) {
-			throw new Error("The input should not be null.");
+			throw new Error(lang.type.not_null ||"The input should not be null.");
 		}
 
 		if(typeof input !== typeof {}) {
-			throw new Error("The input should be an object.");
+			throw new Error(lang.type.not_object || "The input should be an object.");
 		}
 
 		if(toString.call(input) != toString.call({})) {
-			throw new Error("The input should be an object.");
+			throw new Error(lang.type.not_object || "The input should be an object.");
 		}
 
 		return true;
@@ -161,15 +164,15 @@ var Type = function() {
 	function array(input) {
 
 		if(input === null) {
-			throw new Error("The input should not be null.");
+			throw new Error(lang.type.not_null || "The input should not be null.");
 		}
 
 		if(typeof input !== typeof []) {
-			throw new Error("The input should be an array.");
+			throw new Error(lang.type.not_array || "The input should be an array.");
 		}
 
 		if(toString.call(input) != toString.call([])){
-			throw new Error("The input should be an array.");
+			throw new Error(lang.type.not_array || "The input should be an array.");
 		}
 
 		return true;

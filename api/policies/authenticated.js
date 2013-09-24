@@ -1,5 +1,8 @@
 var response = require("../adapters/response");
 
+var language = require("../../language");
+var lang = language.getDefault();
+
 module.exports = function(req, res, ok) {
 
 	if(req.cookies.authenticated == "true") {
@@ -11,7 +14,7 @@ module.exports = function(req, res, ok) {
 		response(res).json({
 
 			result: "error",
-			message: "you're not logged in"
+			message: lang.user.not_logged_in || "you're not logged in"
 		});
 	}
 
