@@ -1,7 +1,7 @@
 module.exports = {
 
-	state: "production",
-	lang: "pt-BR",
+	state: "development",
+	lang: "en-US",
 
 	development: {
 

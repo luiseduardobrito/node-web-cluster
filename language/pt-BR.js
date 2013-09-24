@@ -1,5 +1,14 @@
 module.exports = {
 
+	// Response handling
+	response: {
+
+		// do not change unless you know what you're doing
+		success: "success",
+		error: "error",
+		unhandled_error: "Erro ao gerar resposta do servidor"
+	},
+
 	// Error Handling
 	error: {
 

@@ -1,5 +1,13 @@
 module.exports = {
 
+	response: {
+
+		// do not change unless you know what you're doing
+		success: "success",
+		error: "error",
+		unhandled_error: "Problem serving app response"
+	},
+
 	// Error Handling
 	error: {
 

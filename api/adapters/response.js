@@ -1,7 +1,9 @@
 var config = {
-
 	model: "response"
 };
+
+var language = require("../../language");
+var lang = language.getDefault();
 
 var model = require("./model");
 
@@ -36,9 +38,9 @@ var Response = function(res) {
 
 			var err = model.create("response", {
 
-				result: "error",
+				result: lang.response.error || "error",
 				code: 500,
-				message: "Problem serving app response",
+				message: lang.response.unhandled_error || "Problem serving app response",
 				data: {
 
 					state: "trying to serve response",
