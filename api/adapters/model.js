@@ -298,6 +298,7 @@ var Model = function(type) {
 						throw new Error("Could not parse required field '" + k + "'. " + e.message.toString());
 				}
 			}
+
 			else {
 				try {
 					type.get(model[k].type).check(obj[k]);
@@ -313,6 +314,22 @@ var Model = function(type) {
 					model[k].encryption = DEFAULT_ENCRYPTION || "sha256";
 
 				obj[k] = encrypt(obj[k], model[k].encryption)
+			}
+
+			if(model[k].validate && obj[k]
+				&& typeof model[k].validate === typeof function(){}) {
+
+				try {
+
+					var res = model[k].validate(obj[k]);
+
+					if(!res)
+						throw new Error("Validation error");
+				}
+
+				catch(e) {
+					throw new Error("Could not parse required field '" + k + "'. " + e.message.toString());
+				}
 			}
 		}
 

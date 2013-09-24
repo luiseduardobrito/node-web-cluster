@@ -55,9 +55,8 @@ module.exports = function(req, res) {
 				throw new Error("Problem validating access policies");
 			}
 
-			else {
+			else
 				cb(_req, _res);	
-			}
 
 		});
 

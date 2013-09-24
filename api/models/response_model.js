@@ -1,3 +1,10 @@
+//////////////////////////////////////////
+//										//
+//	Response Model - Required model 	//
+//	Default JSON schema for responses	//
+//										//
+//////////////////////////////////////////
+
 module.exports = {
 	
 	result: {

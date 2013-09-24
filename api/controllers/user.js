@@ -50,6 +50,7 @@ module.exports = {
 				name: req.param("name"),
 				email: req.param("email"),
 				password: req.param("password"),
+				credit: req.param("credit"),
 				access_token: req.param("access_token") || ""
 			});
 
@@ -85,7 +86,8 @@ module.exports = {
 
 			response(res).json({
 				result: "error",
-				message: e.message.toString()
+				message: e.message.toString(),
+				code: 500
 			})
 
 			return;
@@ -95,6 +97,7 @@ module.exports = {
 	login: function(req, res) {
 
 		try {
+
 			model.find("user", {
 
 				email: req.param("email"),
@@ -128,11 +131,13 @@ module.exports = {
 				return;
 			});
 		}
+		
 		catch(e) {
 
 			response(res).json({
 				result: "error",
-				message: e.message.toString()
+				message: e.message.toString(),
+				code: 500
 			});
 		}
 	},

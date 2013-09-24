@@ -20,7 +20,23 @@ module.exports = {
 		type: "password",
 
 		// default: sha256
-		encprytion: "sha256"
+		encryption: "sha256"
+	},
+
+	credit: {
+
+		// sample credit card
+		required: false,
+		type: "string",
+
+		validate: function(number) {
+
+			// sample validation
+			if(number.length < 8)
+				throw new Error("The credit card should be at least 8 characters long");
+
+			return true;
+		}
 	},
 
 	access_token: {

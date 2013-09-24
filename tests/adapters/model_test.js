@@ -101,11 +101,40 @@ exports.test_simpleUserModel = function(test) {
 
 	test.ok(user.name == "name", "User name should be valid");
 	test.ok(user.email == "email@provider.com", "User email should be valid");
-	test.ok(user.password == "abcd1234", "User password should be valid");
+	test.ok(user.password, "User password should be valid");
 	test.ok(user.access_token == "01234567890", "User access_token should be valid");
 
 	test.ok(user._id, "Model _id hash should be valid");
 	test.ok(user.toJSON, "Model 'toJSON' should be valid");
 
 	test.done();
+}
+
+exports.test_simpleCreditCardValidation = function(test) {
+
+	test.expect(2);
+
+	var user = false;
+
+	try {
+
+		user = model.create("user", {
+
+			name: "name",
+			email: "email@provider.com",
+			password: "abcd1234",
+			credit: "12345",
+			access_token: "01234567890"
+
+		});
+	}
+	catch(e) {
+
+		test.ok(e.message, "An error message is expected.");
+		test.ok(!user, "User should not be valid.");
+		test.done();
+		return;
+	}
+
+	test.fail();
 }
