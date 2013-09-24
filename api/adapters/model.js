@@ -1,29 +1,42 @@
+//////////////////////////////////////////////////////////
+//														//
+//			Model Adapter - Framework default			//
+//														//
+//////////////////////////////////////////////////////////
+
+// model dependencies
 var extend = require("extend");
 var crypto = require("crypto");
 var mongo = require("./mongo");
 var log = require("winston");
 
+var validate = require('validator').check;
+var sanitize = require('validator').sanitize
+
+// default password encryption algorithm
 var DEFAULT_ENCRYPTION = "sha256";
+
+//////////////////////////////////////////////////////////
+//														//
+//		Type Casting and Validation						//
+//														//
+//////////////////////////////////////////////////////////
 
 var Type = function() {
 
 	var exports = {};
-
 	var handlers = {};
 
+	// integer
 	function int(input) {
 
-		if(input === null) {
-			throw new Error("The input should not be null.");
-		}
+		validate(input, {
 
-		else if(typeof input !== typeof 0) {
-			throw new Error("The input should be a number");
-		}
+			notNull: 'The input should not be null',
+			isNumeric: 'Input is not a number',
+			isInt: 'The input is not an integer'
 
-		else if(input !== parseInt(input)) {
-			throw new Error("The input should be an integer");
-		}
+		}).notNull().isNumeric().isInt();
 
 		return true;
 	}; 
@@ -33,13 +46,16 @@ var Type = function() {
 		check: int
 	}
 
+	// string
 	function string(input) {
 
-		if(input === null) {
-			throw new Error("The input should not be null.");
-		}
+		validate(input, {
 
-		else if(typeof input !== typeof "str") {
+			notNull: 'The input should not be null',
+
+		}).notNull();
+
+		if(typeof input !== typeof "str") {
 			throw new Error("The input should be a string");
 		}
 
@@ -51,6 +67,7 @@ var Type = function() {
 		check: string
 	}
 
+	// password
 	function password(input) {
 
 		try {
@@ -68,15 +85,10 @@ var Type = function() {
 		catch(e)
 		{
 
-			if(input === null) {
-				throw new Error("The input should not be null.");
-			}
+			// validate string
+			string(input);
 
-			else if(typeof input !== typeof "str") {
-				throw new Error("The input should be a string");
-			}
-
-			else if(!input.length || input.length < 8) {
+			if(!input.length || input.length < 8) {
 				throw new Error("The input password should be at least 8 characters length.");	
 			}
 			
@@ -89,6 +101,7 @@ var Type = function() {
 		check: password
 	}
 
+	// email
 	function email(input) {
 
 		if(typeof input !== typeof "str") {
@@ -121,6 +134,7 @@ var Type = function() {
 		check: email
 	}
 
+	// object {}
 	function object(input) {
 
 		if(input === null) {
@@ -143,6 +157,7 @@ var Type = function() {
 		check: object
 	}
 
+	// array []
 	function array(input) {
 
 		if(input === null) {
@@ -165,6 +180,7 @@ var Type = function() {
 		check: array
 	}
 
+	// get validation by name
 	function get(str) {
 		for(var k in handlers)
 			for(var i = 0; i < handlers[k].tags.length; i++)
@@ -182,6 +198,12 @@ var Type = function() {
 
 	return init();
 }
+
+//////////////////////////////////////////////////////////
+//														//
+//			Model Class - Framework default				//
+//														//
+//////////////////////////////////////////////////////////
 
 var Model = function(type) {
 	
@@ -290,6 +312,7 @@ var Model = function(type) {
 
 					type.get(model[k].type).check(obj[k]);
 				}
+
 				catch(e) {
 
 					if(model[k].default)
@@ -300,9 +323,11 @@ var Model = function(type) {
 			}
 
 			else {
+
 				try {
 					type.get(model[k].type).check(obj[k]);
 				}
+
 				catch(e) {
 					obj[k] = null
 				}
