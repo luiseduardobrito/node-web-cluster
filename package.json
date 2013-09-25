@@ -22,7 +22,8 @@
     "async": "~0.2.9",
     "express-ejs-layouts": "~0.3.1",
     "ejs": "~0.8.4",
-    "forever": "~0.10.8"
+    "forever": "~0.10.8",
+    "format": "~0.2.1"
   },
   "devDependencies": {
     "nodeunit": "~0.8.1"

@@ -11,7 +11,7 @@ module.exports = {
 	// Error Handling
 	error: {
 
-		unknown: "Unknown error",
+		unknown: "Unknown error: %s",
 
 		// Error Levels
 		critical: "Critical",
@@ -65,6 +65,8 @@ module.exports = {
 		login_error: "User could not be logged in",
 
 		logout_success: "User logged out successfully",
-		logout_error: "User could not be logged out"
+		logout_error: "User could not be logged out",
+
+		forbidden_access: "Forbidden access. You're not a root user"
 	}
 }

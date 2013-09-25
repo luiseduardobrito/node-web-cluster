@@ -66,6 +66,8 @@ module.exports = {
 		login_error: "O login não pode ser efetuado",
 
 		logout_success: "Logout efetuado com sucesso",
-		logout_error: "O logout não pode ser efetuado"
+		logout_error: "O logout não pode ser efetuado",
+
+		forbidden_access: "Acesso restrito, vocẽ não tem permissões administrativas"
 	}
 }

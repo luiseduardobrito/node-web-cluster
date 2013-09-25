@@ -12,3 +12,9 @@ exports.test_simpleError = function(test) {
 	test.ok(lang.error.unknown);
 	test.done();	
 }
+
+exports.test_simpleValTest = function(test) {
+
+	test.ok(language.val("error.unknown"));
+	test.done();
+}
