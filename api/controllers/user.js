@@ -89,8 +89,7 @@ module.exports = {
 
 			response(res).json({
 				result: "error",
-				message: e.message.toString(),
-				code: 500
+				message: e.message.toString()
 			})
 
 			return;

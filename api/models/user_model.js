@@ -1,3 +1,5 @@
+var lang = require("../../language");
+
 module.exports = {
 	
 	name: {
@@ -33,7 +35,7 @@ module.exports = {
 
 			// sample validation
 			if(number.length < 8)
-				throw new Error("The credit card should be at least 8 characters long");
+				throw new Error(lang.user.invalid_card || "The credit card should be at least 8 characters long");
 
 			return true;
 		}

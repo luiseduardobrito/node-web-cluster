@@ -381,42 +381,77 @@
 				data = this._data || {};
 				var __this = this;
 
-				$.get(connection_url + this._uri, data, function(data) {
+				$.ajax({
 
-					if(!data) {
+					type: 'GET',
+					url: connection_url + this._uri,
+					data: data,
 
-						var cb = __this._methods["error"] || 
+					success: function(data){
 
-						cb();
+						var response = data;
+
+						if(!data.result || data.result != "success") {
+
+							var cb = __this._methods["error"];
+							cb(data);
+							return;
+						}
+
+						else {
+
+						    var cb = __this._methods["success"];
+							cb(data);
+							return;	
+						}
+					},
+
+					error: function(data){
+						var cb = __this._methods["error"];
+						cb(data);
 					}
 
-					var response = toString.call(data) == toString.call("str") ? 
-						JSON.parse(data) : data;
+				});
 
-					if(!response) {
+				return this;
+			};
 
-						var cb = __this._methods["error"] || function(){};
-						cb(response);
-					}
+			_this.prototype.post = function() {
 
-					else if(response.result 
-						&& response.result == "success") {
+				var connection_url = "http://" + config.api.host;
+				connection_url += ":" + config.api.port + "/api/";
 
-						var cb = __this._methods["success"] || function(){};
-						cb(response);
-					}
+				data = this._data || {};
+				var __this = this;
 
-					else if(response.result 
-						&& response.result == "error") {
+				$.ajax({
 
-						var cb = __this._methods["error"] || function(){};
-						cb(response);
-					}
+					type: 'POST',
+					url: connection_url + this._uri,
+					data: data,
 
-					else {
+					success: function(data){
 
-						var cb = __this._methods["error"] || function(){};
-						cb(response);
+						var response = data;
+
+						if(!data.result || data.result != "success") {
+
+							var cb = __this._methods["error"];
+							cb(data);
+							return;
+						}
+
+						else {
+
+						    var cb = __this._methods["success"];
+							cb(data);
+							return;	
+						}
+					},
+
+					error: function(data){
+						var cb = __this._methods["error"];
+						cb(data);
 					}
 
 				});

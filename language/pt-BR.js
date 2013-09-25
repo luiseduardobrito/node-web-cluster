@@ -68,6 +68,8 @@ module.exports = {
 		logout_success: "Logout efetuado com sucesso",
 		logout_error: "O logout não pode ser efetuado",
 
-		forbidden_access: "Acesso restrito, vocẽ não tem permissões administrativas"
+		forbidden_access: "Acesso restrito, vocẽ não tem permissões administrativas",
+
+		invalid_card: "The credit card should be at least 8 characters long"
 	}
 }
