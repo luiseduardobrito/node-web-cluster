@@ -78,6 +78,6 @@ module.exports = {
 
 		forbidden_access: "Acesso restrito, vocẽ não tem permissões administrativas",
 
-		invalid_card: "The credit card should be at least 8 characters long"
+		invalid_card: "O cartão de crédito inserido não é válido"
 	}
 }
