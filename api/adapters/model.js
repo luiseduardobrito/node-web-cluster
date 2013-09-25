@@ -269,7 +269,8 @@ var Model = function(type) {
 
 		} catch(e) {
 			log.error(e)
-			throw new Error("Problem encrypting password using " + (method || "sha256") + " algorithm.");
+			throw new Error((lang.model.encryption_error + "." || "Problem encrypting string." ) + 
+				" Method: " + (method || "sha256") + " algorithm.");
 		}
 	}
 
@@ -283,7 +284,7 @@ var Model = function(type) {
 				return buf.toString('base64');
 
 			} catch (e) {
-				throw new Error("Problem generating random hash.");
+				throw new Error(lang.model.hash_error || "Problem generating random hash.");
 			}
 		}
 
@@ -311,7 +312,7 @@ var Model = function(type) {
 				try {
 
 					if(!type.get(model[k].type))
-						throw new Error("Specified type is not recognized ("+model[k].type+")")
+						throw new Error((lang.type.unknown || "Specified type is not recognized") +  "("+model[k].type+")")
 
 					type.get(model[k].type).check(obj[k]);
 				}
@@ -321,7 +322,7 @@ var Model = function(type) {
 					if(model[k].default)
 						obj[k] = generate_default(model[k].default)
 					else
-						throw new Error("Could not parse required field '" + k + "'. " + e.message.toString());
+						throw new Error((lang.model.validation_error || "Could not parse required field") + " '" + k + "'. " + e.message.toString());
 				}
 			}
 
@@ -356,7 +357,7 @@ var Model = function(type) {
 				}
 
 				catch(e) {
-					throw new Error("Could not parse required field '" + k + "'. " + e.message.toString());
+					throw new Error((lang.model.validation_error || "Could not parse required field") + " '" + k + "'. " + e.message.toString());
 				}
 			}
 		}
@@ -403,11 +404,11 @@ var Model = function(type) {
 		cb = cb || function(){};
 		
 		if(!obj._model || obj._model == null || obj._model == "") {
-			throw new Error("Object provided is not from any framework model, we can't persist it");
+			throw new Error(lang.model.not_from_framework || "Object provided is not from any framework model, we can't persist it");
 		}
 
 		if(!obj._id) {
-			throw new Error("Object provided has none primary key, the default '_id' was removed");
+			throw new Error(lang.model.not_primary_key || "Object provided has none primary key, the default '_id' was removed");
 		}
 
 		// ensure encryption
@@ -424,14 +425,14 @@ var Model = function(type) {
 		}, function(err, docs) {
 
 			if(err)
-				throw new Error("Problem querying database. " + err.message.toString());
+				throw new Error((lang.database.query_error || "Problem querying database") +". "+ err.message.toString());
 
 			if(!docs || docs.length == 0) {
 
 				db.save(obj, function(err, obj){
 
 					if(err)
-						throw new Error("Problem querying database. " + err.message.toString());
+						throw new Error((lang.database.query_error || "Problem querying database") +". "+ err.message.toString());
 
 					cb(true);
 				});
@@ -444,7 +445,7 @@ var Model = function(type) {
 				}, obj, {multi:false}, function(err) {
 
 					if(err)
-						throw new Error("Problem querying database. " + err.message.toString());
+						throw new Error((lang.database.query_error || "Problem querying database") +". "+ err.message.toString());
 
 					cb(true);
 				});
@@ -474,7 +475,7 @@ var Model = function(type) {
 		db.find(rest, function(err, docs) {
 
 			if(err) {
-				throw new Error("Problem querying database: "+err)
+				throw new Error((lang.database.query_error || "Problem querying database") +". "+ err.toString());
 			}
 
 			for(var i = 0; i < docs.length; i++) {

@@ -25,6 +25,8 @@ module.exports = {
 
 	type: {
 
+		unknown: "O tipo especificado não é válido ou não está presente no sistema",
+
 		// validation errors
 		not_null: "O valor não pode ser nulo",
 		not_numeric: "O valor especificado não é numérico",
@@ -36,6 +38,19 @@ module.exports = {
 		not_valid_domain: "O domínio do email especificado não é válido",
 		not_object: "O valor especificado não é um objeto",
 		not_array: "O valor especificado não é uma lista",
+	},
+
+	model: {
+
+		encryption_error: "Erro ao encriptar o campo especificado",
+		hash_error: "Erro ao gerar o hash",
+		validation_error: "Erro ao validar o campo",
+		not_from_framework: "O objeto especificado não é um Model válido, não é possível salvá-lo no banco",
+		not_primary_key: "O objeto especificado não possui uma chave primária válida, o _id foi removido"
+	},
+
+	database: {
+		query_error: "Erro ao conectar ao banco de dados"
 	},
 
 	user: {

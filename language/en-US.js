@@ -24,6 +24,8 @@ module.exports = {
 
 	type: {
 
+		unknown: "Specified type is not recognized",
+
 		// validation errors
 		not_null: "The input should not be null",
 		not_numeric: "Input is not a number",
@@ -35,6 +37,19 @@ module.exports = {
 		not_valid_domain: "The input is not a valid domain",
 		not_object: "The input is not a valid object",
 		not_array: "The input is not a valid array",
+	},
+
+	model: {
+
+		encryption_error: "Problem encrypting string",
+		hash_error: "Problem generating random hash",
+		validation_error: "Problem parsing required field",
+		not_from_framework: "Object provided is not from any framework model, we can't persist it",
+		not_primary_key: "Object provided has none primary key, the default '_id' was removed"
+	},
+
+	database: {
+		query_error: "Problem querying database"
 	},
 
 	user: {
