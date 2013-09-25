@@ -2,20 +2,23 @@ var response = require("../adapters/response");
 var model = require("../adapters/model");
 var policy = require("../policies/");
 
+var lang = require("../../language").getDefault();
+
 module.exports = {
 
 	index: function(req, res) {
 	
 		response(res).view("home/index", {
-			title: "node-web-cluster",
-			message: "Welcome to the index page!"
+			title: lang.home.title,
+			message: lang.home.message
 		});
 	},
 
 	login: function(req, res) {
 
 		response(res).view("home/login", {
-			title: "node-web-cluster",
+			title: lang.home.title,
+			message: lang.home.message,
 			destination: req.param("destination") || "dashboard"
 		});
 	},
@@ -23,7 +26,8 @@ module.exports = {
 	signup: function(req, res) {
 
 		response(res).view("home/signup", {
-			title: "node-web-cluster",
+			title: lang.home.title,
+			message: lang.home.message,
 			destination: req.param("destination") || "dashboard"
 		});
 	},	
@@ -46,6 +50,7 @@ module.exports = {
 				response(res).view("home/dashboard", {
 
 					title: "node-web-cluster",
+					message: lang.home.message,
 					user: u
 				});
 

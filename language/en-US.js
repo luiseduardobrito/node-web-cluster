@@ -52,6 +52,12 @@ module.exports = {
 		query_error: "Problem querying database"
 	},
 
+	home: {
+
+		title: "Node Web Cluster",
+		message: "Welcome to the index page!"
+	},
+
 	user: {
 
 		email_registered: "Email already registered",

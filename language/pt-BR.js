@@ -53,6 +53,14 @@ module.exports = {
 		query_error: "Erro ao conectar ao banco de dados"
 	},
 
+	// controllers
+
+	home: {
+
+		title: "Node Web Cluster",
+		message: "Bem vindo a pagina inicial do projeto!"
+	},
+
 	user: {
 
 		email_registered: "Email já registrado no sistema",
