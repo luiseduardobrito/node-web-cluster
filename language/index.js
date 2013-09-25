@@ -1,15 +1,27 @@
 var config = require("../config/general");
+var fs = require("fs");
+var path = require("path");
 var vsprintf = require("format").vsprintf;
 
 var Language = function(default_lang) {
 
 	var exports = {};
+	var lang = null;
 
-	var get = function(lang) {
+	var get = function(_lang) {
 
 		try {
 
-			dict = require("./" + lang);
+			lang = _lang;
+
+			if(fs.existsSync(path.join(__dirname, lang + ".js")))
+				dict = require("./" + lang);
+
+			else if(fs.existsSync(path.join(__dirname, lang + ".json")))
+				dict = require("./" + lang + ".json");				
+
+			else
+				throw new Error();
 		}
 		catch(e) {
 
@@ -51,27 +63,29 @@ var Language = function(default_lang) {
 
 	var getDefault = function() {
 
-		var lang = config.language || 
+		var _lang = config.language || 
 			config.lang || 
 			config.i18n || 
 			config.locale;
 
 		try {
 
-			if(!lang)
+			if(!_lang)
 				throw new Error();
 
-			return require("./" + lang);
+			lang = _lang;
+			return get(lang);
 		}
 
 		catch(e) {
 
-			throw new Error("The default language could not be found or is not specified.");
+			throw e;
 		}
 
 	}; exports.getDefault = getDefault;
 
 	var init = function() {
+		lang = default_lang || getDefault();
 		return exports;
 	}
 	
