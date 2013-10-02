@@ -21,7 +21,7 @@ npm run-script start-server
 
 * Visit our [wiki](https://github.com/luiseduardobrito/node-web-cluster/wiki) to get started!
 * Found some problem? Report it in the [issues](https://github.com/luiseduardobrito/node-web-cluster/issues) page!
-* [Introdução ao Node.js (Português)](https://github.com/luiseduardobrito/node-web-cluster/wiki/Introdu%C3%A7%C3%A3o-ao-Node.js-(Portugu%C3%AAs))
+* [Introdução ao Node.js (Português](https://github.com/luiseduardobrito/node-web-cluster/wiki/Introdu%C3%A7%C3%A3o-ao-Node.js-(Portugu%C3%AAs))
 
 ### Further Information
 * [Author GitHub Page](http://luiseduardobrito.github.io)
