@@ -10,8 +10,7 @@ var crypto = require("crypto");
 var mongo = require("./mongo");
 var log = require("winston");
 
-var language = require("../../language");
-var lang = language.getDefault();
+var lang = require("../../language").getDefault();
 
 var validate = require('validator').check;
 var sanitize = require('validator').sanitize
@@ -227,17 +226,37 @@ var Model = function(type) {
 		},
 
 		_toJSON: function(_this) {
+			
+			if(_this.sanitize)
+				_this = _this.sanitize(_this) || _this;
+			
+			if(_this._sanitize)
+				_this = _this._sanitize(_this) || _this;
 
-			return JSON.stringify(_this._sanitize(_this) || _this);
+			return JSON.stringify(_this);
 		},
 
 		toJSON: function(_this) {
+			
+			if(_this.sanitize)
+				_this = _this.sanitize(_this) || _this;
+			
+			else if(_this._sanitize)
+				_this = _this._sanitize(_this) || _this;
 
-			return (_this._toJSON ? _this._toJSON(_this) : JSON.stringify(_this._sanitize ? _this._sanitize(_this) : _this));
+
+			if(_this.toJSON())			
+				return _this.toJSON(_this);
+			
+			else if(_this._toJSON())	
+				return _this._toJSON(_this);
+			
+			else 
+				return JSON.stringify(_this);
 		}
 	};
 
-	function sanitize(_this) {
+	function _sanitize(_this) {
 
 		for(var k in _this) {
 			if(toString.call(_this[k]) == toString.call(function(){}))
@@ -281,7 +300,7 @@ var Model = function(type) {
 			try {
 
 				var buf = crypto.randomBytes(16);
-				return buf.toString('base64');
+				return buf.toString('base64').replace(/\W/g, '');
 
 			} catch (e) {
 				throw new Error(lang.model.hash_error || "Problem generating random hash.");
@@ -319,8 +338,9 @@ var Model = function(type) {
 
 				catch(e) {
 
-					if(model[k].default)
-						obj[k] = generate_default(model[k].default)
+					if(model[k].defaultTo || model[k].defaults || model[k].default)
+						obj[k] = generate_default(model[k].defaultTo || model[k].defaults || model[k].default)
+						
 					else
 						throw new Error((lang.model.validation_error || "Could not parse required field") + " '" + k + "'. " + e.message.toString());
 				}
@@ -370,21 +390,12 @@ var Model = function(type) {
 		var m = require("../models/" + name + "_model");
 
 		// check sanitizer
-		if(m._sanitize) {
-
-			var custom_stz = m._sanitize;
-			var default_stz = sanitize;
-
-			m._sanitize = function(_this) {
-				var result = custom_stz(_this);
-				result = default_stz(_this);
-				return result;
-			}
-		}
+		if(m.sanitize)
+			m.sanitize = m.sanitize;
 		else
-			m._sanitize = sanitize;
-
-		m.sanitize = m._sanitize;
+			m.sanitize = _sanitize;
+		
+		m._sanitize = _sanitize;
 
 		var created = {}
 
@@ -392,7 +403,6 @@ var Model = function(type) {
 		extend(created, m);
 
 		created = initialize(input, created);
-
 		extend(created, {_model: name});
 
 		return created;
@@ -418,7 +428,7 @@ var Model = function(type) {
 		// place timestamp by default
 		obj.timestamp = obj.timestamp || (new Date()).toISOString();
 
-		db.find({
+		return db.find({
 
 			_id: obj._id
 
@@ -428,6 +438,12 @@ var Model = function(type) {
 				throw new Error((lang.database.query_error || "Problem querying database") +". "+ err.message.toString());
 
 			if(!docs || docs.length == 0) {
+				
+				if(obj.sanitize)
+					obj = obj.sanitize(obj) || obj;
+				
+				if(obj._sanitize)
+					obj = obj._sanitize(obj) || obj;
 
 				db.save(obj, function(err, obj){
 
@@ -457,7 +473,56 @@ var Model = function(type) {
 
 	}; exports.save = save;
 
-	function find(name, rest, cb) {
+	var find = function(name, rest, cb) {
+
+		rest = rest || {};
+
+		var m = require("../models/" + name + "_model");
+
+		for(var k in rest) {
+			if(m[k] && m[k].type == "password" && m[k].encryption !== false)
+				rest[k] = encrypt(rest[k], m[k].encryption)
+		}
+		
+		var findCallback = function(err, docs, cb) {
+			
+			if(err) {
+				throw new Error((lang.database.query_error || "Problem querying database") +". "+ err.toString());
+			}
+	
+			for(var i = 0; i < docs.length; i++) {
+	
+				docs[i] = create(name, docs[i]);
+			}
+	
+			cb(docs || []);
+		};
+
+		var db = mongo.connect(name);
+		
+		var l = rest.limit || 0;
+		if(rest.limit) delete rest.limit
+		
+		if(rest.sort) {
+			var s = rest.sort;
+			delete rest.sort;
+			
+			return db.find(rest).limit(l).sort(s, function(err, docs){
+				
+				findCallback(err, docs, cb);
+				
+			});
+		}
+		else
+			return db.find(rest, function(err, docs){
+				
+				findCallback(err, docs, cb);
+				
+			});
+
+	}; exports.find = find;
+	
+	function findAndModify(name, rest, set, cb) {
 
 		name = name;
 		cb = cb || function(){};
@@ -472,7 +537,11 @@ var Model = function(type) {
 
 		var db = mongo.connect(name);
 
-		db.find(rest, function(err, docs) {
+		db.findAndModify({
+			query: rest,
+			update: set,
+			new: false
+		}, function(err, docs) {
 
 			if(err) {
 				throw new Error((lang.database.query_error || "Problem querying database") +". "+ err.toString());
@@ -487,8 +556,8 @@ var Model = function(type) {
 
 		});
 
-	}; exports.find = find;
-
+	}; exports.findAndModify = findAndModify;
+	
 	function remove(name, rest, cb) {
 
 		name = name;
