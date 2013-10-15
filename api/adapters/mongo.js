@@ -2,11 +2,21 @@ var mongojs = require('mongojs');
 var config = require("../../config/general");
 config = config[config.state].db;
 
+var log = require("winston");
+
 var DEFAULT_PORT = 27017;
 
 var Mongo = function(config) {
-
+	
+	if(arguments.callee._singletonInstance)
+		return arguments.callee._singletonInstance;
+	
+	arguments.callee._singletonInstance = this;
+	
+	var db = mongojs(connection_string());
+	
 	var exports = {};
+	var collections = {};
 
 	function connection_string() {
 
@@ -18,27 +28,40 @@ var Mongo = function(config) {
 		}
 
 		str = str + "@" + config.host + ":" + (config.port || DEFAULT_PORT);
-		str = str + "/" + config.db;
+		str = str + "/" + (config.db || "");
 		return str;
 	}
 
-	function connect(collection, cb) {
+	function connect(col, cb) {
 
 		cb = cb || function(){};
-
-		var db = mongojs(connection_string(), [collection]);
-
-		if(!db[collection])
-			throw new Error("Could not connect to collection '"+collection+"'");
-
-		return db[collection];
+		
+		if(!collections[col]) {
+			
+			collections[col] = db.collection(col);
+			log.info("new collection connected: " + col.toString());
+		}
+		
+		if(!collections[col])
+			throw new Error("Could not connect to collection '"+col+"'");
+		
+		return collections[col]
 
 	}; exports.connect = connect;
+	
+	function close() {
+		
+		return null;
+		this = null;
+		
+	}; exports.close = close;
 
 	function init() {
+		
+		log.info("initializing mongo...");
 		return exports;
 	}
-
+	
 	return init();
 }
 
