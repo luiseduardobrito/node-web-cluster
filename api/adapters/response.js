@@ -5,12 +5,12 @@ var config = {
 var language = require("../../language");
 var lang = language.getDefault();
 
-var model = require("./model");
+var mongoose = require("./mongoose");
+var ResponseSchema = mongoose.model("response");
 
 var Response = function(res) {
 	
 	var _res = res;
-
 	var exports = {};
 
 	function json(obj, code) {
@@ -20,23 +20,20 @@ var Response = function(res) {
 
 		try {
 
-			var r = model.create("response", obj);
-			if(r._sanitize) r = r._sanitize(r)
+			var r = new ResponseSchema(obj);
 
-			if(r._id)
-				delete r._id;
+			r.validate(function(err) {
 
-			if(r._timestamp) {
-				r.timestamp = r._timestamp;
-				delete r._timestamp;
-			}
+				if(err)
+					throw new Error(err);
 
-			_res.json(r, code);
+				_res.json(r, code);
+			})
 		}
 
 		catch(e) {
 
-			var err = model.create("response", {
+			var err = new ResponseSchema({
 
 				result: lang.response.error || "error",
 				code: 500,
@@ -49,7 +46,7 @@ var Response = function(res) {
 				}
 			});
 
-			_res.json(err._sanitize(), err.code);
+			_res.json(err, err.code);
 		}
 
 	}; exports.json = json;

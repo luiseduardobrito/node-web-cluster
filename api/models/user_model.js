@@ -1,79 +1,76 @@
-var lang = require("../../language");
+var mongoose = require('../adapters/mongoose');
+var Schema = mongoose.schema;
+var check = mongoose.validate;
 
-module.exports = {
-	
+var bcrypt = require('bcrypt');
+var SALT_WORK_FACTOR = 10;
+
+var UserSchema = new Schema({
+
 	name: {
 
-		required: true,
-		type: "string"
+		type: String, 
+		required: true, 
 
+		validate: [
+
+			check('len', 3), 
+			check('isAlpha', {message: "Name must be na alpha string"})
+		]
 	},
 
 	email: {
 
-		required: true,
-		type: "email"
+		type: String, 
+		required: true, 
+		
+		index: {
+			unique: true, 
+			dropDups: true
+		},
 
+		validate: [
+
+			check('isEmail', {message: "Not a valid email"})
+		]
 	},
 
 	password: {
 
+		type: String, 
 		required: true,
-		type: "password",
 
-		// default: sha256
-		encryption: "sha256"
+		validate: [check('len', 6)]
 	},
+});
 
-	credit: {
+// ----- Methods ----- //
 
-		// sample credit card
-		required: false,
-		type: "string",
-
-		validate: function(number) {
-
-			// sample validation
-			if(number.length < 8)
-				throw new Error(lang.user.invalid_card || "The credit card should be at least 8 characters long");
-
-			return true;
-		}
-	},
-
-	access_token: {
-
-		required: true,
-		type: "string"
-
-	},
-
-	role: {
-
-		required: true,
-		type: "string",
-		default: "user"
-	},
-
-	_sanitize: function(_this) {
-
-		if(_this.password)
-			delete _this.password;
-
-		if(_this._timestamp) {
-			_this.created = _this._timestamp;
-			delete _this._timestamp
-		}
-
-		if(_this.timestamp) {
-			_this.created = _this.timestamp;
-			delete _this.timestamp
-		}
-	},
-
-	toJSON: function(_this){
-
-		delete _this.password;
-		return JSON.stringify(_this);
-	}
+UserSchema.methods.getName = function(name) {
+	return this.name;
 }
+
+// -- Password Encryption --//
+UserSchema.pre('save', function(next) {
+
+    var user = this;
+
+    // only hash the password if it has been modified (or is new)
+    if (!user.isModified('password')) return next();
+
+    // generate a salt
+    bcrypt.genSalt(SALT_WORK_FACTOR, function(err, salt) {
+        if (err) return next(err);
+
+        // hash the password along with our new salt
+        bcrypt.hash(user.password, salt, function(err, hash) {
+            if (err) return next(err);
+
+            // override the cleartext password with the hashed one
+            user.password = hash;
+            next();
+        });
+    });
+});
+
+module.exports = UserSchema;

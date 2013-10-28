@@ -1,29 +1,17 @@
 var response = require("../adapters/response");
+var model = require("../adapters/mongoose");
+var policy = require("../policies/");
 
-var language = require("../../language");
-var lang = language.getDefault();
+var lang = require("../../language").getDefault();
 
 module.exports = {
-	
-	index: function(req, res) {
-
-		response(res).json({
-
-			result: lang.response.error || "error",
-			code: 500,
-			message: lang.error.unknown || "unknown"
-
-		}, 500);
-	},
 
 	not_found: function(req, res) {
-
+	
 		response(res).json({
-
-			result: lang.response.error || "error",
-			code: 404,
-			message: lang.error.not_found || "not found"
-
-		}, 404);
+			result: "error",
+			message: "method not found",
+			code: 404
+		});
 	}
 }

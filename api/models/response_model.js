@@ -5,33 +5,53 @@
 //										//
 //////////////////////////////////////////
 
-module.exports = {
-	
-	result: {
+var mongoose = require('../adapters/mongoose');
+var Schema = mongoose.schema;
+var check = mongoose.validate;
 
-		required: true,
-		type: "string"
-
-	},
+var ResponseSchema = new Schema({
 
 	code: {
 
-		required: true,
-		type: "integer",
-		default: 200
+		type: Number, 
+		required: true, 
+		default: 200,
+	},
 
+	result: {
+
+		type: String, 
+		required: true, 
+		default: "success",
+
+		validate: [
+
+			function(val, next) {
+				if(val != "success" && val != "error")
+					throw new Error("Result should be 'success' or 'error'");
+				next()
+			}
+		]
 	},
 
 	message: {
 
-		required: false,
-		type: "string"
+		type: String, 
+		required: false
 	},
 
 	data: {
 
-		required: true,
-		type: "object",
-		default: {}
+		type: Schema.Types.Mixed, 
+		required: false
 	}
+});
+
+ResponseSchema.methods.toJSON = function() {
+
+	obj = this.toObject()
+	delete obj._id
+	return obj
 }
+
+module.exports = ResponseSchema;
